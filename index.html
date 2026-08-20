@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>栄冠ナイン 攻略ビュー（パワプロ2026）</title>
+<style>
+  :root {
+    --bg: #0f1a14;
+    --panel: #16241c;
+    --ink: #e8f3ea;
+    --muted: #9bb3a3;
+    --line: #2a4234;
+    --gold: #e2c36a;
+    --hidden: #7c5cff;
+    --period: #3aa0ff;
+    --stop: #ff7a45;
+    --official: #3ecf8e;
+    --maybe: #c9a227;
+    --blue: #4aa3ff;
+    --red: #ff5a5a;
+    --white: #dfe8e2;
+    --green: #3ecf8e;
+    --yellow: #e2c36a;
+    --accent: #5eead4;
+    --toku-gold: #e2c36a;
+    --toku-blue: #4aa3ff;
+    --toku-red: #ff5a5a;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+    background:
+      radial-gradient(1200px 500px at 20% -10%, #1e3a2a 0%, transparent 50%),
+      var(--bg);
+    color: var(--ink);
+  }
+  .wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px 16px calc(48px + env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  h1 { margin: 0 0 6px; font-size: 1.45rem; letter-spacing: .04em; }
+  .sub { color: var(--muted); font-size: .9rem; margin-bottom: 16px; line-height: 1.6; }
+  .tabs {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 16px; padding: 6px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    position: sticky; top: 0; z-index: 40;
+    background: rgba(22, 36, 28, 0.94);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .tab {
+    appearance: none; border: 1px solid transparent; background: transparent;
+    color: var(--muted); font: inherit; font-size: .88rem; font-weight: 600;
+    padding: 10px 14px; border-radius: 10px; cursor: pointer;
+    min-height: 44px;
+  }
+  .tab:hover { color: var(--ink); background: #122018; }
+  .tab.active {
+    color: #0b1510; background: var(--gold); border-color: #c9a84a;
+  }
+  .panel-view { display: none; }
+  .panel-view.active { display: block; }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: end;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 16px; padding: 14px; margin-bottom: 16px;
+  }
+  label { display: grid; gap: 6px; font-size: .75rem; color: var(--muted); flex: 1 1 160px; }
+  select, input {
+    background: #0f1c16; color: var(--ink); border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px 12px; font: inherit;
+    width: 100%; min-width: 0; min-height: 44px;
+  }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+  .chip {
+    font-size: .75rem; padding: 5px 10px; border-radius: 999px;
+    border: 1px solid var(--line); background: #122018;
+  }
+  .chip b { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .months { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .month {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 16px; padding: 12px;
+  }
+  .month h2 { margin: 0 0 8px; font-size: .95rem; color: var(--gold); }
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .dow { font-size: .65rem; color: var(--muted); text-align: center; padding: 4px 0; }
+  .day {
+    min-height: 42px; border-radius: 8px; padding: 4px;
+    background: #101c16; font-size: .7rem;
+    border: 1px solid transparent;
+  }
+  .day.empty { background: transparent; }
+  .day .n { display: block; opacity: .7; }
+  .day.hidden { border-color: #7c5cff88; background: #23184a; }
+  .day.period { border-color: #3aa0ff88; background: #0f2740; }
+  .day.stop { border-color: #ff7a4588; background: #3a1d12; }
+  .day.official { border-color: #3ecf8e66; background: #123024; }
+  .day.maybe { border-color: #c9a22788; background: #2b240d; }
+  .dots { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 4px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .list { margin-top: 18px; display: grid; gap: 8px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 14px;
+  }
+  .card h3 { margin: 0 0 4px; font-size: .95rem; }
+  .meta { font-size: .75rem; color: var(--muted); }
+  .note { margin-top: 18px; font-size: .8rem; color: var(--muted); line-height: 1.7; }
+  .section-title {
+    margin: 8px 0 12px; font-size: 1.05rem; color: var(--gold);
+    letter-spacing: .03em;
+  }
+  .hint {
+    font-size: .82rem; color: var(--muted); line-height: 1.6;
+    margin: 0 0 14px;
+  }
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .info-card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 14px; padding: 14px;
+    display: grid; gap: 8px;
+  }
+  .info-card h3 { margin: 0; font-size: .95rem; display: flex; gap: 8px; align-items: center; }
+  .badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 22px; height: 22px; border-radius: 6px;
+    font-size: .7rem; font-weight: 700; color: #0b1510; padding: 0 6px;
+  }
+  .badge.blue { background: var(--blue); }
+  .badge.red { background: var(--red); color: #fff; }
+  .badge.white { background: var(--white); }
+  .badge.green { background: var(--green); }
+  .badge.yellow { background: var(--yellow); }
+  .badge.train { background: #ff8f5a; }
+  .badge.char { background: #b388ff; color: #1a1028; }
+  .badge.route { background: #80cbc4; }
+  .badge.fix { background: #90a4ae; }
+  .badge.toku-gold { background: var(--toku-gold); }
+  .badge.toku-blue { background: var(--toku-blue); color: #fff; }
+  .badge.toku-red { background: var(--toku-red); color: #fff; }
+  .role-pill {
+    font-size: .68rem; padding: 2px 7px; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--muted); white-space: nowrap;
+  }
+  .info-card p { margin: 0; font-size: .82rem; line-height: 1.55; color: var(--ink); }
+  .tagrow { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-size: .68rem; color: var(--muted); border: 1px solid var(--line);
+    border-radius: 999px; padding: 3px 8px; background: #122018;
+  }
+  .tag.good { color: #9be7c4; border-color: #2f6b4f; }
+  .tag.bad { color: #ffb4a8; border-color: #7a3a32; }
+  .tag.tip { color: var(--accent); border-color: #2a5f58; }
+  .table-wrap {
+    margin-bottom: 18px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    overflow: hidden;
+  }
+  .table-wrap .swipe-hint {
+    display: none;
+    font-size: .72rem;
+    color: var(--muted);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--line);
+    background: #122018;
+  }
+  table.data {
+    width: 100%; border-collapse: collapse; font-size: .8rem;
+    background: transparent; border: 0;
+    border-radius: 0; overflow: visible; margin-bottom: 0;
+  }
+  table.data th, table.data td {
+    padding: 9px 10px; border-bottom: 1px solid var(--line);
+    text-align: left; vertical-align: top; line-height: 1.45;
+  }
+  table.data th {
+    background: #122018; color: var(--gold); font-weight: 600;
+    white-space: nowrap;
+  }
+  table.data tr:last-child td { border-bottom: none; }
+  table.data tr:hover td { background: #1a2c22; }
+  .stat {
+    display: inline-block; margin: 1px 3px 1px 0;
+    padding: 2px 7px; border-radius: 999px; font-size: .72rem;
+    background: #1d3328; border: 1px solid #355844; color: #cfeedd;
+  }
+  .stat.mid { background: #243a2f; border-color: #4a7a5c; color: #b7f0cd; }
+  .stat.big { background: #2d4a38; border-color: #63b882; color: #9dffc0; }
+  .stat.none { opacity: .35; }
+  .choice {
+    margin: 0; padding-left: 1.1em; font-size: .8rem; line-height: 1.55;
+  }
+  .choice li { margin-bottom: 4px; }
+  .choice strong { color: var(--accent); font-weight: 600; }
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center;
+  }
+  .seg {
+    display: inline-flex; flex-wrap: wrap; gap: 4px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; padding: 4px;
+  }
+  .seg button {
+    appearance: none; border: 0; background: transparent; color: var(--muted);
+    font: inherit; font-size: .78rem; padding: 10px 12px; border-radius: 8px; cursor: pointer;
+    min-height: 40px;
+  }
+  .seg button.active { background: #24362c; color: var(--ink); }
+  .search-box { flex: 1 1 220px; min-width: 0; }
+  .xp-legend {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px;
+    font-size: .75rem; color: var(--muted);
+  }
+  .hidden-row { display: none !important; }
+
+  /* tablet */
+  @media (max-width: 900px) {
+    .months { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .cards-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  }
+
+  /* phone */
+  @media (max-width: 720px) {
+    .wrap { padding-top: 16px; padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px)); }
+    h1 { font-size: 1.2rem; }
+    .sub { font-size: .82rem; margin-bottom: 12px; }
+    .tabs {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      gap: 6px;
+      scrollbar-width: none;
+      top: env(safe-area-inset-top, 0px);
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex: 0 0 auto;
+      font-size: .8rem;
+      padding: 10px 12px;
+      white-space: nowrap;
+    }
+    .controls {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 12px;
+      gap: 12px;
+    }
+    label { flex: 1 1 auto; width: 100%; }
+    .legend { gap: 6px; }
+    .chip { font-size: .7rem; padding: 4px 8px; }
+    .months { grid-template-columns: 1fr; gap: 10px; }
+    .month { padding: 10px; }
+    .month h2 { font-size: .88rem; }
+    .day {
+      min-height: 36px;
+      padding: 3px 2px;
+      font-size: .62rem;
+      border-radius: 6px;
+    }
+    .dow { font-size: .6rem; }
+    .dot { width: 5px; height: 5px; }
+    .cards-grid { grid-template-columns: 1fr; margin-bottom: 16px; }
+    .section-title { font-size: .95rem; margin-top: 4px; }
+    .hint { font-size: .78rem; }
+    .seg { width: 100%; }
+    .seg button { flex: 1 1 auto; text-align: center; }
+
+    /* 表: カード型（1行＝1カード） */
+    .table-wrap {
+      border: 0;
+      background: transparent;
+      overflow: visible;
+    }
+    .table-wrap .swipe-hint { display: none; }
+    table.data {
+      display: block;
+      width: 100%;
+      background: transparent;
+    }
+    table.data thead { display: none; }
+    table.data tbody { display: block; }
+    table.data tr {
+      display: block;
+      margin-bottom: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+    }
+    table.data tr:hover td { background: transparent; }
+    table.data tr.hidden-row { display: none !important; }
+    table.data td {
+      display: block;
+      padding: 3px 0;
+      border: 0;
+      font-size: .8rem;
+    }
+    table.data td:first-child {
+      font-size: .92rem;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 6px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--line);
+    }
+    table.data td[data-label]::before {
+      content: attr(data-label);
+      display: block;
+      font-size: .68rem;
+      color: var(--muted);
+      margin-bottom: 2px;
+      font-weight: 600;
+    }
+    table.data td:first-child[data-label]::before { display: none; }
+  }
+
+  @media (max-width: 380px) {
+    .tab { font-size: .74rem; padding: 9px 10px; }
+    .day { min-height: 32px; font-size: .58rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>栄冠ナイン 攻略ビュー</h1>
+  <p class="sub">パワプロ2026。隠し日程・スケジュールカード・戦術試合・能力説明を同じ画面のタブで確認できます。攻略情報（AppMedia / ゲームエイト等）を再構成した非公式ビューです。</p>
+
+  <nav class="tabs" role="tablist" aria-label="コンテンツ切替">
+    <button class="tab active" data-tab="calendar" type="button">隠し日程</button>
+    <button class="tab" data-tab="schedule" type="button">スケジュールカード</button>
+    <button class="tab" data-tab="tactics" type="button">戦術試合</button>
+    <button class="tab" data-tab="abilities" type="button">能力説明</button>
+  </nav>
+
+  <!-- ===== 隠し日程 ===== -->
+  <section class="panel-view active" id="view-calendar">
+    <div class="controls">
+      <label>開始年度（4月〜翌3月）
+        <input type="number" id="year" value="2026" min="2000" max="2099">
+      </label>
+      <label>モード
+        <select id="mode">
+          <option value="both">通常 / 3年併せ（日程は共通）</option>
+        </select>
+      </label>
+      <label>地域（8月特訓日）
+        <select id="region">
+          <option value="other">その他（8/21）</option>
+          <option value="hokkaido">北海道・岩手・宮城・山形・福島・長野（8/10）</option>
+          <option value="aomori">青森・秋田（8/15）</option>
+        </select>
+      </label>
+      <label>表示
+        <select id="filter">
+          <option value="all">全部</option>
+          <option value="hidden">隠しのみ</option>
+          <option value="stop">止まるべき日のみ</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="legend">
+      <span class="chip"><b style="background:var(--stop)"></b>止まる日（確定寄り）</span>
+      <span class="chip"><b style="background:var(--period)"></b>隠し期間（マス条件）</span>
+      <span class="chip"><b style="background:var(--hidden)"></b>隠し単日</span>
+      <span class="chip"><b style="background:var(--official)"></b>公式日程</span>
+      <span class="chip"><b style="background:var(--maybe)"></b>検証中</span>
+    </div>
+
+    <div class="months" id="months"></div>
+    <div class="list" id="list"></div>
+    <p class="note">
+      3年併せでも年の日付イベントは通常と同じ、という整理です（進行が速いだけ）。<br>
+      青／白マス期間はランダム低確率。甲子園インタビューは出場決定時のみ。世界大会は2006年起算の4年周期（2026年は該当）。<br>
+      パッチで変わる可能性があるので、最終確認はゲームと最新攻略を優先してください。
+    </p>
+  </section>
+
+  <!-- ===== スケジュールカード ===== -->
+  <section class="panel-view" id="view-schedule">
+    <p class="hint">スケジュール上のマス色・進行アイコン（カード）・選択肢イベントの効果確認用です。検索やカテゴリで絞り込めます。</p>
+
+    <div class="controls">
+      <label class="search-box">キーワード検索
+        <input type="search" id="schedSearch" placeholder="例: ミート / 青マス / 特訓">
+      </label>
+      <label>カテゴリ
+        <select id="schedCat">
+          <option value="all">すべて</option>
+          <option value="panel">マス色</option>
+          <option value="icon">進行アイコン</option>
+          <option value="choice">選択肢イベント</option>
+        </select>
+      </label>
+    </div>
+
+    <h2 class="section-title">マス色（パネル）の基本効果</h2>
+    <div class="cards-grid" id="panelCards"></div>
+
+    <h2 class="section-title">進行アイコン（練習カード）</h2>
+    <div class="xp-legend">
+      <span>経験値目安:</span>
+      <span class="stat">微小〜小</span>
+      <span class="stat mid">中〜大</span>
+      <span class="stat big">特大</span>
+    </div>
+    <div class="toolbar">
+      <div class="seg" id="iconSeg">
+        <button type="button" class="active" data-group="all">全部</button>
+        <button type="button" data-group="bat">打撃</button>
+        <button type="button" data-group="power">筋力</button>
+        <button type="button" data-group="run">走塁</button>
+        <button type="button" data-group="arm">肩</button>
+        <button type="button" data-group="field">守備</button>
+        <button type="button" data-group="catch">捕球</button>
+        <button type="button" data-group="pitch">投手</button>
+        <button type="button" data-group="other">その他</button>
+      </div>
+    </div>
+    <table class="data" id="iconTable">
+      <thead>
+        <tr><th>カード</th><th>主な経験値</th><th>条件・メモ</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h2 class="section-title">選択肢イベント（効果確認）</h2>
+    <div class="list" id="choiceList"></div>
+    <p class="note">
+      進行アイコンの経験値表記は2024版攻略をベースにしています（2026でも大枠は同じ）。合宿中は同じカードでも取得できる特能が変わります。<br>
+      マス色イベントは低確率のランダム発生が多いです。
+    </p>
+  </section>
+
+  <!-- ===== 戦術試合 ===== -->
+  <section class="panel-view" id="view-tactics">
+    <p class="hint">戦術試合で指示したときの経験値と、戦術レベル6以上に必要な青特・能力条件です。育成目的で選ぶときに使ってください。</p>
+
+    <div class="controls">
+      <label class="search-box">キーワード検索
+        <input type="search" id="tacSearch" placeholder="例: 流し打ち / コントロール / 変化球">
+      </label>
+      <label>表示
+        <select id="tacView">
+          <option value="all">全部</option>
+          <option value="bat">打撃戦術</option>
+          <option value="batset">打撃設定</option>
+          <option value="pitch">投手戦術</option>
+          <option value="pitchset">投手設定</option>
+          <option value="lv6">Lv6条件のみ</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="xp-legend">
+      <span>経験値:</span>
+      <span class="stat">小</span>
+      <span class="stat mid">中</span>
+      <span class="stat big">大</span>
+      <span style="margin-left:8px">数字が大きい戦術ほど成功率が高い傾向。基本上限は5、条件達成で6〜7。</span>
+    </div>
+
+    <h2 class="section-title">打撃戦術 → 育つステータス</h2>
+    <table class="data" id="batTacTable">
+      <thead>
+        <tr><th>戦術</th><th>育つステータス</th><th>参照能力（Lv目安）</th><th>Lv6条件</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h2 class="section-title">打撃設定 → 育つステータス</h2>
+    <table class="data" id="batSetTable">
+      <thead>
+        <tr><th>設定</th><th>育つステータス</th><th>メモ</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h2 class="section-title">投手戦術 → 育つステータス</h2>
+    <table class="data" id="pitchTacTable">
+      <thead>
+        <tr><th>戦術</th><th>育つステータス</th><th>参照能力（Lv目安）</th><th>Lv6条件</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h2 class="section-title">投手設定 → 育つステータス</h2>
+    <table class="data" id="pitchSetTable">
+      <thead>
+        <tr><th>設定</th><th>育つステータス</th><th>メモ</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h2 class="section-title">代打・代走</h2>
+    <table class="data" id="subTable">
+      <thead>
+        <tr><th>行動</th><th>育つステータス</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="cards-grid" style="margin-top:8px">
+      <article class="info-card">
+        <h3>育成のコツ</h3>
+        <p>ミート伸ばしたい → <strong>流し打ち / 転がせ / ミート多用</strong></p>
+        <p>パワー伸ばしたい → <strong>引っ張り / 強振多用</strong></p>
+        <p>変化球伸ばしたい → 余裕のある試合で <strong>緩急重視 + 変化球中心</strong></p>
+        <p>コントロール → <strong>内角・外角・低め・クサいところ</strong></p>
+      </article>
+      <article class="info-card">
+        <h3>Lvを上げる要因</h3>
+        <p>・対応ステータスの高さ<br>・信頼度（5段階）<br>・調子（±2程度）<br>・大声援（確率で+1）<br>・クール固有「究極の思考」（全体+1）</p>
+      </article>
+    </div>
+    <p class="note">経験値は指示を出した場面での獲得。操作機会は「ふつう」以上が育成向き。パッチで変わる可能性があります。</p>
+  </section>
+
+  <!-- ===== 能力説明 ===== -->
+  <section class="panel-view" id="view-abilities">
+    <p class="hint">基礎能力と特殊能力（金・青・赤）の効果確認用です。検索と表示切替で絞り込めます。</p>
+
+    <div class="controls">
+      <label class="search-box">キーワード検索
+        <input type="search" id="abiSearch" placeholder="例: ミート / アベレージ / 一発">
+      </label>
+      <label>表示
+        <select id="abiView">
+          <option value="all">全部</option>
+          <option value="bat">基礎・野手</option>
+          <option value="pitch">基礎・投手</option>
+          <option value="sub">関連ランク</option>
+          <option value="gold">金特</option>
+          <option value="blue">青特</option>
+          <option value="red">赤特</option>
+        </select>
+      </label>
+      <label>特能の対象
+        <select id="abiRole">
+          <option value="all">投手＋野手＋捕手</option>
+          <option value="pitch">投手</option>
+          <option value="bat">野手</option>
+          <option value="catch">捕手</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="cards-grid" style="margin-bottom:14px" id="abiIntro">
+      <article class="info-card">
+        <h3>能力の見方</h3>
+        <p>基礎はだいたい <strong>G〜S</strong>（球速は km/h、弾道 1〜4、変化球は方向ごと 1〜7）。</p>
+        <p>特能は <span class="badge toku-gold">金</span> 最強帯／ <span class="badge toku-blue">青</span> プラス／ <span class="badge toku-red">赤</span> マイナス。</p>
+      </article>
+      <article class="info-card">
+        <h3>育成のざっくり優先</h3>
+        <p><strong>野手:</strong> ミート・走力 → 捕球E〜 → 弾道2 → 他をC〜A</p>
+        <p><strong>投手:</strong> 球速＋変化 → コン → スタ。試合は変化球中心が伸びやすい。</p>
+      </article>
+      <article class="info-card">
+        <h3>赤特の消し方（要点）</h3>
+        <p>・特能本（本屋・差し入れ等）で対応青特／ランク上げ</p>
+        <p>・6/26〜7/2・9/8〜9/14 の青マス技術指導</p>
+        <p>・プロ野球選手マス（ランダム消去）</p>
+      </article>
+    </div>
+
+    <h2 class="section-title" id="abiBatTitle">野手の基礎能力</h2>
+    <div class="cards-grid" id="abiBatCards"></div>
+
+    <h2 class="section-title" id="abiPitchTitle">投手の基礎能力</h2>
+    <div class="cards-grid" id="abiPitchCards"></div>
+
+    <h2 class="section-title" id="abiSubTitle">関連ランク（走塁・盗塁・送球）</h2>
+    <div class="cards-grid" id="abiSubCards"></div>
+
+    <h2 class="section-title" id="abiGoldTitle"><span class="badge toku-gold">金</span> 金特</h2>
+    <table class="data" id="abiGoldTable">
+      <thead><tr><th>特能</th><th>対象</th><th>効果</th><th>メモ</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <h2 class="section-title" id="abiBlueTitle"><span class="badge toku-blue">青</span> 青特</h2>
+    <table class="data" id="abiBlueTable">
+      <thead><tr><th>特能</th><th>対象</th><th>効果</th><th>メモ</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <h2 class="section-title" id="abiRedTitle"><span class="badge toku-red">赤</span> 赤特</h2>
+    <table class="data" id="abiRedTable">
+      <thead><tr><th>特能</th><th>対象</th><th>効果</th><th>メモ</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <h2 class="section-title" id="abiRankTitle">ランク目安（数値 ↔ 字母）</h2>
+    <table class="data" id="abiRankTable">
+      <thead>
+        <tr><th>ランク</th><th>目安数値</th><th>イメージ</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <p class="note">
+      基礎・特能とも攻略情報（ゲームエイト等）を再構成した非公式まとめです。一覧にない固有名・OB限定・青赤特／A〜G特もあります。<br>
+      効果数値や排他関係はパッチで変わることがあるため、最終確認はゲーム内を優先してください。
+    </p>
+  </section>
+</div>
+
+<script>
+/* ========== タブ ========== */
+document.querySelectorAll(".tab").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    document.querySelectorAll(".tab").forEach(function (b) { b.classList.remove("active"); });
+    document.querySelectorAll(".panel-view").forEach(function (p) { p.classList.remove("active"); });
+    btn.classList.add("active");
+    document.getElementById("view-" + btn.dataset.tab).classList.add("active");
+  });
+});
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" })[c];
+  });
+}
+
+function xpBadge(level) {
+  if (!level) return '<span class="stat none">-</span>';
+  var cls = level === "大" || level === "特大" ? "big" : (level === "中" ? "mid" : "");
+  return '<span class="stat ' + cls + '">' + esc(level) + "</span>";
+}
+
+function statsHtml(obj) {
+  var keys = Object.keys(obj || {});
+  if (!keys.length) return '<span class="stat none">なし</span>';
+  return keys.map(function (k) {
+    return '<span class="stat">' + esc(k) + " " + esc(obj[k]) + "</span>";
+  }).join("");
+}
+
+/* ========== 隠し日程（既存） ========== */
+const EVENTS = [
+  { m:4, d:1, kind:"hidden", pri:"stop", title:"進級", desc:"止まると新2・新3の練習効率が小アップ" },
+  { m:6, d1:11, d2:17, kind:"period", title:"河川敷走り込み系", desc:"白マスでランダム。練習効率UP", need:"白マス" },
+  { m:6, d1:26, endM:7, endD:2, kind:"period", title:"技術指導（赤特削除）", desc:"青マスでランダム。選択肢で赤特消去", need:"青マス" },
+  { m:7, d:2, kind:"official", title:"夏の都道府県大会", desc:"公式日程" },
+  { m:7, d:7, kind:"hidden", title:"七夕", desc:"隠し寄りの季節イベント" },
+  { m:7, d1:21, d2:30, kind:"period", title:"甲子園インタビュー（青特）", desc:"夏の甲子園出場時のみ。青マス低確率で青特", need:"青マス＋甲子園出場" },
+  { m:7, d1:25, d2:29, kind:"official", title:"夏合宿", desc:"公式日程" },
+  { m:8, d:7, kind:"official", title:"夏の甲子園開幕付近", desc:"公式。年により前後あり" },
+  { m:8, d:10, kind:"stop", title:"敗退後特訓マス", desc:"北海道・岩手・宮城・山形・福島・長野。止まると特訓マス（低確率で緑）", region:"hokkaido" },
+  { m:8, d:15, kind:"stop", title:"敗退後特訓マス", desc:"青森・秋田。止まると特訓マス", region:"aomori" },
+  { m:8, d:21, kind:"stop", title:"敗退後特訓マス", desc:"上記以外。甲子園未出場／敗退時。止まると特訓マス", region:"other" },
+  { m:8, d:27, kind:"official", title:"高校日本代表招集", desc:"派遣すると9/6頃帰還" },
+  { m:9, d1:8, d2:14, kind:"period", title:"技術指導（赤特削除）", desc:"青マスでランダム", need:"青マス" },
+  { m:9, d:13, kind:"official", title:"秋の都道府県大会", desc:"公式日程" },
+  { m:10, d:19, kind:"official", title:"秋の地区大会", desc:"公式日程" },
+  { m:10, d:26, kind:"official", title:"ドラフト", desc:"公式日程" },
+  { m:11, d:15, kind:"official", title:"秋の全国大会", desc:"公式日程" },
+  { m:11, d1:18, d2:24, kind:"period", title:"練習効率UP", desc:"白マスでランダム", need:"白マス" },
+  { m:12, d1:10, d2:14, kind:"official", title:"冬合宿", desc:"公式日程" },
+  { m:12, d:24, kind:"stop", title:"クリスマスイブ", desc:"止まると確定。体力回復／練習効率大／特訓マスのどれか" },
+  { m:1, d:1, kind:"hidden", title:"おみくじ", desc:"通過でも発生しうる。止まらなくてよい" },
+  { m:2, d1:1, d2:10, kind:"period", title:"春甲子園インタビュー（青特）", desc:"春出場決定時。青マス低確率", need:"青マス＋甲子園出場" },
+  { m:2, d1:18, d2:24, kind:"period", title:"練習効率UP", desc:"白マスでランダム", need:"白マス" },
+  { m:2, d:"last", kind:"stop", title:"2月最終日の特訓", desc:"28または29。止まると特訓マス。うるう年以外でも発生" },
+  { m:3, d:7, kind:"official", title:"卒業式", desc:"3年生引退" },
+  { m:3, d1:8, d2:31, kind:"maybe", title:"卒業後の特能習得？", desc:"青マス低確率の可能性。検証中。甲子園滞在時以外", need:"青マス？" },
+  { m:3, d:15, kind:"hidden", title:"世界大会", desc:"2006年起算・4年ごと。日本代表結果で練習効率", world:true },
+  { m:3, d:13, kind:"official", title:"春の組み合わせ抽選", desc:"公式寄り" },
+  { m:3, d:18, kind:"official", title:"春の甲子園", desc:"公式日程" },
+];
+
+function lastDay(y, m) { return new Date(y, m, 0).getDate(); }
+
+function eventSpan(ev) {
+  if (ev.d === "last") return { startM: ev.m, startD: "last", endM: ev.m, endD: "last" };
+  if (ev.d) return { startM: ev.m, startD: ev.d, endM: ev.m, endD: ev.d };
+  return { startM: ev.m, startD: ev.d1, endM: ev.endM || ev.m, endD: ev.endD || ev.d2 };
+}
+
+function inRange(calYear, m, d, ev) {
+  const span = eventSpan(ev);
+  const startD = span.startD === "last" ? lastDay(calYear, m) : span.startD;
+  const endD = span.endD === "last" ? lastDay(calYear, m) : span.endD;
+  const t = m * 100 + d;
+  const s = span.startM * 100 + startD;
+  const e = span.endM * 100 + endD;
+  if (s <= e) return t >= s && t <= e;
+  return t >= s || t <= e;
+}
+
+function coversMonth(ev, m) {
+  const span = eventSpan(ev);
+  if (span.startM === span.endM) return span.startM === m;
+  if (span.startM < span.endM) return m >= span.startM && m <= span.endM;
+  return m >= span.startM || m <= span.endM;
+}
+
+function evClass(ev) {
+  if (ev.kind === "stop" || ev.pri === "stop") return "stop";
+  if (ev.kind === "period") return "period";
+  if (ev.kind === "official") return "official";
+  if (ev.kind === "maybe") return "maybe";
+  return "hidden";
+}
+
+function visible(ev, region, filter, year) {
+  if (ev.region && ev.region !== region) return false;
+  if (ev.world && year % 4 !== 2) return false;
+  if (filter === "hidden" && ev.kind === "official") return false;
+  if (filter === "stop" && !(ev.kind === "stop" || ev.pri === "stop")) return false;
+  return true;
+}
+
+function formatWhen(ev) {
+  if (ev.d === "last") return ev.m + "/最終日";
+  if (ev.d) return ev.m + "/" + ev.d;
+  if (ev.endM) return ev.m + "/" + ev.d1 + "〜" + ev.endM + "/" + ev.endD;
+  return ev.m + "/" + ev.d1 + "〜" + ev.d2;
+}
+
+function renderCalendar() {
+  const year = +document.getElementById("year").value;
+  const region = document.getElementById("region").value;
+  const filter = document.getElementById("filter").value;
+  const monthsEl = document.getElementById("months");
+  const listEl = document.getElementById("list");
+  monthsEl.innerHTML = "";
+
+  const monthOrder = [4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3];
+  const names = ["", "1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+
+  monthOrder.forEach(function (m) {
+    const calYear = m >= 4 ? year : year + 1;
+    const first = new Date(calYear, m - 1, 1).getDay();
+    const dim = lastDay(calYear, m);
+    const box = document.createElement("section");
+    box.className = "month";
+    box.innerHTML = "<h2>" + calYear + "年 " + names[m] + "</h2>";
+    const grid = document.createElement("div");
+    grid.className = "grid";
+
+    "日月火水木金土".split("").forEach(function (w) {
+      const el = document.createElement("div");
+      el.className = "dow";
+      el.textContent = w;
+      grid.appendChild(el);
+    });
+
+    for (let i = 0; i < first; i++) {
+      const empty = document.createElement("div");
+      empty.className = "day empty";
+      grid.appendChild(empty);
+    }
+
+    for (let d = 1; d <= dim; d++) {
+      const hits = EVENTS.filter(function (ev) {
+        return visible(ev, region, filter, year) && coversMonth(ev, m) && inRange(calYear, m, d, ev);
+      });
+      const cell = document.createElement("div");
+      cell.className = "day" + (hits[0] ? " " + evClass(hits[0]) : "");
+      const dots = hits.map(function (h) {
+        return '<span class="dot" style="background:var(--' + evClass(h) + ')"></span>';
+      }).join("");
+      cell.innerHTML = '<span class="n">' + d + '</span><span class="dots">' + dots + "</span>";
+      if (hits.length) cell.title = hits.map(function (h) { return h.title; }).join(" / ");
+      grid.appendChild(cell);
+    }
+
+    box.appendChild(grid);
+    monthsEl.appendChild(box);
+  });
+
+  listEl.innerHTML = EVENTS.filter(function (ev) {
+    return visible(ev, region, filter, year);
+  }).map(function (ev) {
+    return (
+      '<article class="card"><h3>' + formatWhen(ev) + "　" + esc(ev.title) + "</h3>" +
+      '<div class="meta">' + esc(ev.kind) + (ev.need ? " ／ " + esc(ev.need) : "") + "</div>" +
+      '<p style="margin:6px 0 0;font-size:.85rem">' + esc(ev.desc) + "</p></article>"
+    );
+  }).join("");
+}
+
+["year", "region", "filter"].forEach(function (id) {
+  document.getElementById(id).addEventListener("input", renderCalendar);
+  document.getElementById(id).addEventListener("change", renderCalendar);
+});
+
+/* ========== スケジュールカード ========== */
+const PANELS = [
+  { name:"青マス", badge:"blue", tags:["good","おすすめ"], effect:"良いイベントが発生しやすい。隠し期間の技術指導・インタビューも青マス条件。基本は優先して止まる。", tip:"隠し日程と合わせて狙う" },
+  { name:"赤マス", badge:"red", tags:["bad"], effect:"悪いイベントが発生。テンション低下・怪我・練習効率ダウンなど。可能なら回避。", tip:"アイテムやカード枚数で回避" },
+  { name:"白マス", badge:"white", tags:["tip"], effect:"プラス／マイナスどちらも出るランダム。隠し期間の練習効率UPは白マス条件。", tip:"試合直前は避けがち" },
+  { name:"緑マス", badge:"green", tags:["good"], effect:"選手の体力回復。試合前や連戦前に有用。", tip:"青と同程度に優先可" },
+  { name:"黄マス", badge:"yellow", tags:["tip"], effect:"練習進行アイコンで止まると経験値が増加。練習以外のアイコンだと白マス相当のイベントになる。", tip:"観戦等で白効果にもできる" },
+  { name:"特訓マス", badge:"train", tags:["good","おすすめ"], effect:"ランダム3人から1人を選び特能チャレンジ。選んだ選手の練習効率・信頼度も上昇。", tip:"敗退後特訓日・2月末・Xmasで出やすい" },
+  { name:"キャラマス", badge:"char", tags:["tip"], effect:"マス上のキャラ毎のイベント（卒業生・スカウト等）。卒業生がいると発生しやすい。", tip:"進路次第で強力" },
+  { name:"分岐マス", badge:"route", tags:[], effect:"進行ルートが三叉に分かれる。先のマス色を見て選択。", tip:"赤回避・青狙いの要" },
+  { name:"定期イベント", badge:"fix", tags:[], effect:"試験・入学式・試合など固定イベント。試合は勝敗でルート分岐。", tip:"公式カレンダーと一致" },
+];
+
+const ICONS = [
+  { group:"bat", name:"素振り", xp:{ミート:"小"}, note:"" },
+  { group:"bat", name:"ミートバッティング", xp:{ミート:"中"}, note:"" },
+  { group:"bat", name:"ティーバッティング", xp:{ミート:"大"}, note:"器材「ティー」" },
+  { group:"bat", name:"マシン打撃", xp:{ミート:"特大"}, note:"器材「打撃マシン」" },
+  { group:"power", name:"腕立て・腹筋", xp:{パワー:"小", 球速:"微小"}, note:"" },
+  { group:"power", name:"指立て伏せ", xp:{パワー:"中", 球速:"微小"}, note:"" },
+  { group:"power", name:"ダンベル", xp:{パワー:"大", 球速:"微小"}, note:"器材「ダンベル」" },
+  { group:"power", name:"ベンチプレス", xp:{パワー:"特大", 球速:"微小"}, note:"器材「ベンチプレス」" },
+  { group:"run", name:"ダッシュ", xp:{走塁:"小", スタミナ:"微小"}, note:"合宿で内野安打〇等" },
+  { group:"run", name:"インターバル走", xp:{走塁:"中", スタミナ:"微小"}, note:"合宿で内野安打〇等" },
+  { group:"run", name:"ベースランニング", xp:{走塁:"大", スタミナ:"微小"}, note:"器材「ストップウォッチ」" },
+  { group:"run", name:"ハードル", xp:{走塁:"特大", スタミナ:"微小"}, note:"器材「ミニハードル」" },
+  { group:"arm", name:"スローイング", xp:{肩力:"小", 球速:"微小"}, note:"" },
+  { group:"arm", name:"遠投", xp:{肩力:"中", 球速:"微小"}, note:"" },
+  { group:"arm", name:"チューブトレーニング", xp:{肩力:"大", 球速:"微小"}, note:"器材「チューブ」" },
+  { group:"arm", name:"ラットマシン", xp:{肩力:"特大", 球速:"微小"}, note:"器材「ラットマシン」" },
+  { group:"field", name:"ペッパー", xp:{守備:"小"}, note:"" },
+  { group:"field", name:"守備連係", xp:{守備:"中"}, note:"" },
+  { group:"field", name:"ノック", xp:{守備:"大"}, note:"器材「ノックバット」" },
+  { group:"field", name:"マシンガンノック", xp:{守備:"特大"}, note:"器材「ノックマシン」" },
+  { group:"catch", name:"座禅", xp:{捕球:"小", コン:"微小"}, note:"" },
+  { group:"catch", name:"メンタルトレーニング", xp:{捕球:"中", コン:"微小"}, note:"" },
+  { group:"catch", name:"アロマテラピー", xp:{捕球:"大", コン:"微小"}, note:"器材「アロマグッズ」" },
+  { group:"catch", name:"いやしのひととき", xp:{捕球:"特大", コン:"微小"}, note:"器材「癒し系CD」" },
+  { group:"pitch", name:"フォームチェック・球速", xp:{球速:"小", 肩力:"微小"}, note:"" },
+  { group:"pitch", name:"投げ込み", xp:{球速:"中", 肩力:"微小"}, note:"" },
+  { group:"pitch", name:"球速測定", xp:{球速:"大", 肩力:"微小"}, note:"器材「スピードガン」" },
+  { group:"pitch", name:"マッスラー", xp:{球速:"特大", 肩力:"微小"}, note:"器材「マッスラー」" },
+  { group:"pitch", name:"フォームチェック・制球", xp:{コン:"小", 守備:"微小"}, note:"" },
+  { group:"pitch", name:"コース投げ込み", xp:{コン:"中", 守備:"微小"}, note:"" },
+  { group:"pitch", name:"的当て", xp:{コン:"大", 守備:"微小"}, note:"器材「普通の的」" },
+  { group:"pitch", name:"コース的当て", xp:{コン:"特大", 守備:"微小"}, note:"器材「3x3の的」" },
+  { group:"pitch", name:"スクワット", xp:{スタミナ:"小"}, note:"" },
+  { group:"pitch", name:"走り込み", xp:{スタミナ:"中"}, note:"" },
+  { group:"pitch", name:"タイヤ引き", xp:{スタミナ:"大"}, note:"器材「タイヤ」" },
+  { group:"pitch", name:"ローラー", xp:{スタミナ:"特大"}, note:"器材「ローラー」" },
+  { group:"pitch", name:"フォームチェック・変", xp:{変化球:"小"}, note:"" },
+  { group:"pitch", name:"変化球投げ込み", xp:{変化球:"中"}, note:"" },
+  { group:"pitch", name:"握力強化", xp:{変化球:"大", パワー:"特大"}, note:"器材「ムニムニボール」／投打両方に有効" },
+  { group:"pitch", name:"変化球研究", xp:{変化球:"特大"}, note:"器材「DVD」" },
+  { group:"other", name:"総合練習", xp:{全能力:"微小"}, note:"器材不要で効率良め" },
+  { group:"other", name:"バント練習", xp:{ミート:"小", 走力:"小", 捕球:"小"}, note:"" },
+  { group:"other", name:"ストレッチ", xp:{パワー:"微小", 球速:"中", スタミナ:"中"}, note:"" },
+  { group:"other", name:"特打", xp:{ミート:"特大", パワー:"特大"}, note:"方針「打撃力重視」" },
+  { group:"other", name:"特守", xp:{守備:"特大", 捕球:"特大"}, note:"方針「守備・投手力重視」" },
+  { group:"other", name:"練習休み／仮設シャワー等", xp:{}, note:"数人の体力回復" },
+  { group:"other", name:"観戦", xp:{}, note:"全員：練習効率↑＋体力1。効果は以降2回分" },
+  { group:"other", name:"勉強", xp:{}, note:"数人の学力↑＋体力1" },
+  { group:"other", name:"励ます", xp:{}, note:"1名：テンション↑＋体力1" },
+  { group:"other", name:"食事会", xp:{}, note:"全員体力3回復、数人の信頼度↑" },
+  { group:"other", name:"個別指導", xp:{}, note:"3人から1人：練習効率・信頼度・個人練習経験値" },
+  { group:"other", name:"グラウンド整備", xp:{}, note:"グラウンドLv+1／全員練習効率小↑" },
+  { group:"other", name:"他校調査", xp:{}, note:"選んだ高校との試合が有利＋練習効率小↑" },
+  { group:"other", name:"新入生スカウト", xp:{}, note:"スカウト実行" },
+  { group:"other", name:"スケジュール見直し", xp:{}, note:"手持ち進行アイコンを入れ替え" },
+  { group:"other", name:"練習試合申し込み", xp:{}, note:"練習試合へ" },
+  { group:"other", name:"紅白戦", xp:{}, note:"おまかせ練習分の経験値" },
+];
+
+const CHOICES = [
+  {
+    title:"技術指導（赤特削除）", when:"6/26〜7/2・9/8〜9/14", need:"青マス／ランダム",
+    choices:[
+      { pick:"打撃を指導する", effect:"ミート・パワー小↑。確率で「三振」消去" },
+      { pick:"守備を指導する", effect:"守備・捕球小↑。確率で「エラー」消去／送球F以下+1" },
+      { pick:"走塁を指導する", effect:"走塁小↑。確率で走塁・盗塁F以下+1" },
+      { pick:"投球を指導する", effect:"コン小↑。低確率で寸前・一発・四球・スロスタ・力配分・短気・抜け球・軽い球・乱調を消去" },
+    ]
+  },
+  {
+    title:"甲子園インタビュー（青特）", when:"7/21〜7/30・2/1〜2/10", need:"青マス＋甲子園出場／ランダム",
+    choices:[
+      { pick:"攻撃力を鍛えたことが大きいです", effect:"ミート・パワー中↑。条件でアベヒ・パワヒ・プル・広角・流し・固め・弾道+1など（低確率・1人1つ）" },
+      { pick:"機動力を鍛えたことが大きいです", effect:"走力中↑。走塁/盗塁+1・内野安打〇・ヘッド・かく乱・プレラン・バント職人など" },
+      { pick:"守備力を鍛えたことが大きいです", effect:"守備・肩・捕球中↑。レーザー・守備職人・ホーム死守・送球+1など" },
+      { pick:"投手力を鍛えたことが大きいです", effect:"投手の球速・コン・スタ・変化中↑。ジャイロ・重い球・ノビ・球持ち・低め〇・尻上がり・キレ〇など" },
+      { pick:"選手たちの努力のたまものです", effect:"全員の信頼度中↑。ダメダメ→ふつう" },
+    ]
+  },
+  {
+    title:"勉強がしたい！（練習効率）", when:"6/11〜6/17・11/18〜11/24・2/18〜2/24", need:"白マス／ランダム",
+    choices:[
+      { pick:"全員で勉強会を行う", effect:"対象の信頼小↑・学力小↑・練習効率小↓" },
+      { pick:"練習こそ大事", effect:"対象の信頼小↓・練習効率中↑・1〜3人の学力小↓" },
+    ]
+  },
+  {
+    title:"クリスマスイブ", when:"12/24", need:"その日に止まる",
+    choices:[
+      { pick:"（ランダム）", effect:"①体力回復＋数人テンション↑ ②練習効率大↑＋数人テンション↑ ③特訓マス化" },
+    ]
+  },
+  {
+    title:"世界大会", when:"3/15（4年周期）", need:"その日に止まる",
+    choices:[
+      { pick:"日本の結果に依存", effect:"優勝：練習効率大↑／準優勝：中↑／決勝T敗退：小↑／予選敗退：テンション↓" },
+    ]
+  },
+  {
+    title:"七夕", when:"7/7", need:"必ず発生",
+    choices:[
+      { pick:"みんな野球がうまくなりますように！", effect:"全員の個別練習経験値小↑" },
+      { pick:"みんなの学力が上がりますように！", effect:"全員の学力小↑" },
+      { pick:"甲子園に出場したい！", effect:"1〜3人のテンション↑・信頼小↑" },
+    ]
+  },
+  {
+    title:"この練習がオススメ（投手）", when:"随時", need:"青マス／ランダム",
+    choices:[
+      { pick:"走りこみ", effect:"スタミナ中↑。低確率でスタミナ+5／ケガしにくさ+1" },
+      { pick:"速い球の投げ込み", effect:"球速中↑。低確率でノビ・重い球・ジャイロ・球持ち・球速安定" },
+      { pick:"制球力アップの投げ込み", effect:"コン中↑。低確率でコン+5／低め〇／リリース〇" },
+      { pick:"変化球の投げ込み", effect:"変化球中↑。低確率でキレ〇／リリース〇" },
+      { pick:"実践守備", effect:"守備中↑。低確率で牽制〇／打球反応〇／クイック+1／捕球+5" },
+      { pick:"バント練習", effect:"ミート小↑。低確率でバント〇／バント職人" },
+    ]
+  },
+  {
+    title:"この練習がオススメ（野手）", when:"随時", need:"青マス／ランダム",
+    choices:[
+      { pick:"フリー打撃", effect:"ミート中↑。低確率で流し打ち／粘り打ち" },
+      { pick:"バント練習", effect:"ミート小↑。低確率でバント〇／バント職人" },
+      { pick:"筋力トレーニング", effect:"パワー中↑。低確率でパワー+5／弾道+1" },
+      { pick:"走塁練習", effect:"走力小↑。低確率で走塁/盗塁+1・ヘッド・かく乱" },
+      { pick:"遠投", effect:"肩力中↑。低確率で送球+1／レーザービーム" },
+      { pick:"実践守備", effect:"守備中↑。低確率で送球+1／守備職人／捕球+5" },
+    ]
+  },
+  {
+    title:"マネージャーの気分がいい", when:"随時", need:"甲子園出場中以外",
+    choices:[
+      { pick:"部室の掃除", effect:"アイテム入手 or 1〜3人テンション中↑" },
+      { pick:"グラウンド整備", effect:"グラウンドLv+1 or 個別練習経験値中↑" },
+      { pick:"練習機材の手入れ", effect:"器材耐久回復（器材があるとき）" },
+    ]
+  },
+  {
+    title:"練習が辛い", when:"随時", need:"-",
+    choices:[
+      { pick:"練習を休ませる", effect:"信頼小↑・テンション↑" },
+      { pick:"もう少し頑張るように言う", effect:"確率で信頼・個人練習中↑／または小↓" },
+      { pick:"気分転換に勉強させる", effect:"信頼・学力小↑" },
+    ]
+  },
+];
+
+let iconGroup = "all";
+
+function renderPanels() {
+  document.getElementById("panelCards").innerHTML = PANELS.map(function (p) {
+    var tags = (p.tags || []).map(function (t) {
+      var label = t === "good" ? "優先" : t === "bad" ? "回避" : t === "おすすめ" ? "おすすめ" : t === "tip" ? "コツあり" : t;
+      var cls = t === "good" || t === "おすすめ" ? "good" : t === "bad" ? "bad" : "tip";
+      return '<span class="tag ' + cls + '">' + label + "</span>";
+    }).join("");
+    return (
+      '<article class="info-card" data-cat="panel" data-q="' + esc((p.name + " " + p.effect + " " + (p.tip || "")).toLowerCase()) + '">' +
+      "<h3><span class=\"badge " + p.badge + "\">■</span>" + esc(p.name) + "</h3>" +
+      '<div class="tagrow">' + tags + "</div>" +
+      "<p>" + esc(p.effect) + "</p>" +
+      (p.tip ? '<p class="meta">ヒント: ' + esc(p.tip) + "</p>" : "") +
+      "</article>"
+    );
+  }).join("");
+}
+
+function renderIcons() {
+  const tbody = document.querySelector("#iconTable tbody");
+  tbody.innerHTML = ICONS.map(function (ic) {
+    const q = (ic.name + " " + Object.keys(ic.xp).join(" ") + " " + Object.values(ic.xp).join(" ") + " " + ic.note).toLowerCase();
+    return (
+      '<tr data-cat="icon" data-group="' + ic.group + '" data-q="' + esc(q) + '">' +
+      "<td>" + esc(ic.name) + "</td>" +
+      "<td>" + statsHtml(ic.xp) + "</td>" +
+      "<td>" + esc(ic.note || "—") + "</td></tr>"
+    );
+  }).join("");
+  enhanceTablesForMobile();
+}
+
+function renderChoices() {
+  document.getElementById("choiceList").innerHTML = CHOICES.map(function (c) {
+    const q = (c.title + " " + c.when + " " + c.need + " " + c.choices.map(function (x) { return x.pick + " " + x.effect; }).join(" ")).toLowerCase();
+    const lis = c.choices.map(function (x) {
+      return "<li><strong>" + esc(x.pick) + "</strong> — " + esc(x.effect) + "</li>";
+    }).join("");
+    return (
+      '<article class="card" data-cat="choice" data-q="' + esc(q) + '">' +
+      "<h3>" + esc(c.title) + "</h3>" +
+      '<div class="meta">' + esc(c.when) + " ／ " + esc(c.need) + "</div>" +
+      '<ul class="choice">' + lis + "</ul></article>"
+    );
+  }).join("");
+}
+
+function filterSchedule() {
+  const q = document.getElementById("schedSearch").value.trim().toLowerCase();
+  const cat = document.getElementById("schedCat").value;
+  document.querySelectorAll("#view-schedule [data-cat]").forEach(function (el) {
+    const matchCat = cat === "all" || el.dataset.cat === cat;
+    const matchQ = !q || (el.dataset.q || "").includes(q);
+    const matchGroup = el.dataset.cat !== "icon" || iconGroup === "all" || el.dataset.group === iconGroup;
+    el.classList.toggle("hidden-row", !(matchCat && matchQ && matchGroup));
+  });
+}
+
+document.getElementById("schedSearch").addEventListener("input", filterSchedule);
+document.getElementById("schedCat").addEventListener("change", filterSchedule);
+document.querySelectorAll("#iconSeg button").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    document.querySelectorAll("#iconSeg button").forEach(function (b) { b.classList.remove("active"); });
+    btn.classList.add("active");
+    iconGroup = btn.dataset.group;
+    filterSchedule();
+  });
+});
+
+/* ========== 戦術試合 ========== */
+const BAT_TAC = [
+  { name:"おまかせ", xp:{パワー:"小"}, ref:"ランダム", lv6:"—" },
+  { name:"センター返し", xp:{ミート:"小", パワー:"小"}, ref:"ミート（〜19→1 … 60〜→5）", lv6:"アベレージヒッター" },
+  { name:"流し打ち", xp:{ミート:"小"}, ref:"ミート（〜29→1 … 75〜→5）", lv6:"流し打ち／広角打法／アウトコースヒッター" },
+  { name:"引っ張り", xp:{パワー:"小"}, ref:"パワー（〜29→1 … 75〜→5）", lv6:"プルヒッター／インコースヒッター" },
+  { name:"転がせ", xp:{ミート:"小"}, ref:"ミート＋走力", lv6:"内野安打〇" },
+  { name:"犠牲フライ", xp:{弾道:"小", パワー:"小"}, ref:"弾道＋パワー", lv6:"ハイボールヒッター／ローボールヒッター" },
+  { name:"ヒットエンドラン（打者）", xp:{ミート:"小"}, ref:"ミート", lv6:"粘り打ち／悪球打ち" },
+  { name:"ヒットエンドラン（走者）", xp:{走力:"小"}, ref:"—", lv6:"（上記）" },
+  { name:"送りバント（打者）", xp:{ミート:"小"}, ref:"ミート", lv6:"バント〇／バント職人" },
+  { name:"送りバント（走者）", xp:{走力:"小"}, ref:"—", lv6:"（上記）" },
+  { name:"スクイズ（打者）", xp:{ミート:"小"}, ref:"ミート", lv6:"バント〇／バント職人" },
+  { name:"スクイズ（走者）", xp:{走力:"小"}, ref:"—", lv6:"（上記）" },
+  { name:"セーフティバント（打者）", xp:{ミート:"小", 走力:"小"}, ref:"ミート＋走力", lv6:"バント〇／バント職人／内野安打〇" },
+  { name:"盗塁（走者）", xp:{走力:"中"}, ref:"ランナーの走力", lv6:"盗塁 B以上" },
+  { name:"待て", xp:{}, ref:"—", lv6:"—" },
+];
+
+const BAT_SET = [
+  { name:"ミートおまかせ", xp:{ミート:"小", パワー:"小"}, note:"バランス" },
+  { name:"ミート多用", xp:{ミート:"中"}, note:"今作おすすめ寄り" },
+  { name:"強振多用", xp:{パワー:"中"}, note:"長打狙い" },
+  { name:"おまかせ打法", xp:{}, note:"経験値なし" },
+  { name:"慎重打法", xp:{}, note:"経験値なし" },
+  { name:"積極打法", xp:{}, note:"経験値なし（ミート多用と併用しやすい）" },
+];
+
+const PITCH_TAC = [
+  { name:"コースおまかせ", xp:{球速:"小", 変化球:"小"}, ref:"—", lv6:"—" },
+  { name:"内角中心", xp:{コン:"中"}, ref:"球速（〜129→1 … 155〜→5）", lv6:"内角攻め" },
+  { name:"外角中心", xp:{コン:"中"}, ref:"コン（〜39→1 … 80〜→5）", lv6:"コントロールA／総変化量10以上" },
+  { name:"ストライクをとれ", xp:{球速:"小", スタミナ:"小"}, ref:"スタミナ", lv6:"球速155km/h以上" },
+  { name:"クサいところ", xp:{コン:"中"}, ref:"コン（高め閾値）", lv6:"コントロールS" },
+  { name:"打たせてとれ", xp:{スタミナ:"中", 変化球:"小"}, ref:"スタミナ＋総変化量", lv6:"キレ〇" },
+  { name:"緩急重視", xp:{球速:"小", 変化球:"小"}, ref:"球速＋総変化量", lv6:"緩急〇／リリース〇" },
+  { name:"低め中心", xp:{コン:"中"}, ref:"コン＋総変化量", lv6:"低め〇" },
+  { name:"1球はずせ", xp:{}, ref:"—", lv6:"—" },
+  { name:"敬遠", xp:{}, ref:"—", lv6:"—" },
+];
+
+const PITCH_SET = [
+  { name:"球種おまかせ", xp:{球速:"小", コン:"小"}, note:"" },
+  { name:"速球中心", xp:{球速:"大"}, note:"球速育成" },
+  { name:"変化球中心", xp:{変化球:"大"}, note:"変化球育成（おすすめ）" },
+  { name:"ゲッツーシフト", xp:{守備力:"小"}, note:"守備側経験値" },
+  { name:"バント警戒", xp:{守備力:"小"}, note:"" },
+  { name:"バントシフト", xp:{守備力:"小"}, note:"" },
+  { name:"守備位置おまかせ／定位置／警戒系／前進など", xp:{}, note:"経験値なしが多い" },
+];
+
+const SUBS = [
+  { name:"代打起用", xp:{ミート:"大", パワー:"大"} },
+  { name:"代走", xp:{走力:"大"} },
+];
+
+function fillTacTable(sel, rows, withLv) {
+  const tbody = document.querySelector(sel + " tbody");
+  tbody.innerHTML = rows.map(function (r) {
+    const q = (r.name + " " + Object.keys(r.xp || {}).join(" ") + " " + (r.ref || "") + " " + (r.lv6 || "") + " " + (r.note || "")).toLowerCase();
+    let html = "<tr data-q=\"" + esc(q) + "\"><td>" + esc(r.name) + "</td><td>" + statsHtml(r.xp) + "</td>";
+    if (withLv) html += "<td>" + esc(r.ref || "—") + "</td><td>" + esc(r.lv6 || "—") + "</td>";
+    else html += "<td>" + esc(r.note || "—") + "</td>";
+    return html + "</tr>";
+  }).join("");
+}
+
+function renderTactics() {
+  fillTacTable("#batTacTable", BAT_TAC, true);
+  fillTacTable("#batSetTable", BAT_SET, false);
+  fillTacTable("#pitchTacTable", PITCH_TAC, true);
+  fillTacTable("#pitchSetTable", PITCH_SET, false);
+  document.querySelector("#subTable tbody").innerHTML = SUBS.map(function (r) {
+    const q = (r.name + " " + Object.keys(r.xp).join(" ")).toLowerCase();
+    return '<tr data-q="' + esc(q) + '"><td>' + esc(r.name) + "</td><td>" + statsHtml(r.xp) + "</td></tr>";
+  }).join("");
+  filterTactics();
+  enhanceTablesForMobile();
+}
+
+function filterTactics() {
+  const q = document.getElementById("tacSearch").value.trim().toLowerCase();
+  const view = document.getElementById("tacView").value;
+  const map = {
+    bat: "#batTacTable",
+    batset: "#batSetTable",
+    pitch: "#pitchTacTable",
+    pitchset: "#pitchSetTable",
+  };
+
+  ["#batTacTable", "#batSetTable", "#pitchTacTable", "#pitchSetTable", "#subTable"].forEach(function (sel) {
+    const table = document.querySelector(sel);
+    const sectionTitle = table.previousElementSibling;
+    let showTable = view === "all" || view === "lv6";
+    if (view === "bat" && sel === "#batTacTable") showTable = true;
+    if (view === "batset" && sel === "#batSetTable") showTable = true;
+    if (view === "pitch" && sel === "#pitchTacTable") showTable = true;
+    if (view === "pitchset" && sel === "#pitchSetTable") showTable = true;
+    if (view !== "all" && view !== "lv6" && sel === "#subTable") showTable = false;
+    if (view === "lv6" && (sel === "#batSetTable" || sel === "#pitchSetTable" || sel === "#subTable")) showTable = false;
+
+    table.style.display = showTable ? "" : "none";
+    if (sectionTitle && sectionTitle.classList.contains("section-title")) {
+      sectionTitle.style.display = showTable ? "" : "none";
+    }
+
+    table.querySelectorAll("tbody tr").forEach(function (tr) {
+      const matchQ = !q || (tr.dataset.q || "").includes(q);
+      let matchLv = true;
+      if (view === "lv6") {
+        const lvCell = tr.cells[3];
+        matchLv = lvCell && lvCell.textContent.trim() !== "—" && lvCell.textContent.trim() !== "";
+      }
+      tr.classList.toggle("hidden-row", !(matchQ && matchLv && showTable));
+    });
+  });
+}
+
+document.getElementById("tacSearch").addEventListener("input", filterTactics);
+document.getElementById("tacView").addEventListener("change", filterTactics);
+
+/* ========== 能力説明 ========== */
+const ABI_BAT = [
+  {
+    name: "弾道",
+    short: "打球の上がりやすさ",
+    effect: "4段階。数値が高いほど打球が高い軌道になり、飛距離・長打につながりやすい。",
+    tip: "戦力評価への寄与は小さめ。最終的に2前後を目安に。犠牲フライの戦術Lvにも影響。",
+    related: "犠牲フライ／筋力トレ（低確率+1）",
+    grow: "イベント・特能・練習の副次で上がることが多い"
+  },
+  {
+    name: "ミート",
+    short: "ボールを捉える力",
+    effect: "数値が高いほどヒットを打ちやすくなる。ミート打ち・多くの打撃戦術のベース。",
+    tip: "今作はミート重視が強い。野手育成の最優先クラス。",
+    related: "流し打ち・転がせ・センター返し・ミート多用",
+    grow: "素振り〜マシン打撃／特打／試合のミート系指示"
+  },
+  {
+    name: "パワー",
+    short: "打球の強さ・飛距離",
+    effect: "数値が高いほど強い打球になり、遠くへ飛びやすくなる（長打・本塁打）。",
+    tip: "ミートの次。引っ張り・強振とセットで伸ばす。",
+    related: "引っ張り・強振多用・犠牲フライ",
+    grow: "腕立て〜ベンチプレス／特打／試合の引っ張り"
+  },
+  {
+    name: "走力",
+    short: "走る速さ",
+    effect: "走塁・盗塁・守備移動の速さに関わる。内野安打やセーフティにも影響。",
+    tip: "ミートと並ぶ高優先。転がせ・盗塁の戦術Lvにも効く。",
+    related: "盗塁・セーフティ・転がせ（走力側）",
+    grow: "ダッシュ〜ハードル／試合の盗塁・バント走者"
+  },
+  {
+    name: "肩力",
+    short: "送球の速さ",
+    effect: "送球が速くなる。外野では遠投距離にも関わる。",
+    tip: "外野・捕手・三遊で重要。レーザービーム条件にも肩が絡む。",
+    related: "遠投・スローイング系練習",
+    grow: "スローイング〜ラットマシン／試合の守備寄与"
+  },
+  {
+    name: "守備力",
+    short: "守備の上手さ",
+    effect: "捕球から送球までの速さ・送球の正確さなど、守備の処理能力が上がる。",
+    tip: "内野（特に遊撃・二塁）で優先。特守・ノックで伸ばす。",
+    related: "ゲッツー／バントシフト等の守備設定（小経験値）",
+    grow: "ペッパー〜マシンガンノック／特守"
+  },
+  {
+    name: "捕球",
+    short: "ミスのしにくさ",
+    effect: "落球・悪送球など守備ミスの確率を下げる。",
+    tip: "今作は試合戦力の守備評価に含まれる。まずE〜Cを意識。",
+    related: "座禅〜いやしのひととき／特守",
+    grow: "捕球系練習／青マスの実践守備など"
+  },
+];
+
+const ABI_PITCH = [
+  {
+    name: "球速",
+    short: "ストレートの最高速度",
+    effect: "直球の速さ（km/h）。高いほど打ちにくく、威圧感や一部戦術・特能条件に効く。調子でも上下する。",
+    tip: "投手の顔。155km超で「ストライクをとれ」Lv6条件など。",
+    related: "ストライクをとれ・緩急重視・速球中心",
+    grow: "フォーム球速〜マッスラー／試合の速球中心"
+  },
+  {
+    name: "コントロール",
+    short: "狙ったコースへ投げる力",
+    effect: "高いほど狙ったコースに投げやすく、失投が減る。",
+    tip: "四球・失投を減らす生命線。内角・外角・低め・クサいところで育つ。",
+    related: "内角中心・外角中心・低め中心・クサいところ",
+    grow: "フォーム制球〜コース的当て／試合のコース指示"
+  },
+  {
+    name: "スタミナ",
+    short: "投げられる球数",
+    effect: "高いほど長く投げられる。消耗が遅い。",
+    tip: "先発は必須。打たせてとれ／ストライクをとれの参照にも。",
+    related: "打たせてとれ・ストライクをとれ",
+    grow: "スクワット〜ローラー／走り込み系"
+  },
+  {
+    name: "変化球",
+    short: "変化の鋭さ（方向ごと）",
+    effect: "5方向・各最大7段階。同じ方向の数値が高いほど鋭く変化。合計が総変化量。",
+    tip: "練習だけでは足りないことが多い。試合の「変化球中心」で伸ばす。総変化量は複数戦術のLvに効く。",
+    related: "緩急重視・打たせてとれ・低め中心・変化球中心",
+    grow: "変化球投げ込み〜変化球研究／試合で変化球中心"
+  },
+  {
+    name: "総変化量",
+    short: "覚えている変化の合計",
+    effect: "各変化球レベルの合計値。戦術レベルや一部Lv6条件（外角など）の目安になる。",
+    tip: "球種を増やしつつ各方向を上げる。10前後を一つの目標に。",
+    related: "外角中心Lv6（コンA＋総変化10以上）など",
+    grow: "変化球の習得・強化イベント／試合経験値"
+  },
+];
+
+const ABI_SUB = [
+  {
+    name: "走塁",
+    short: "走塁の上手さ（ランク）",
+    effect: "盗塁以外の走塁時の走力補正。高いほど進塁が有利（ヘッドスライディング抑制などもランクによる）。",
+    tip: "技術指導・合宿・特訓で+しやすい。走力本体とは別管理。",
+    related: "走塁指導／ダッシュ系合宿",
+    grow: "特能としての走塁+1など"
+  },
+  {
+    name: "盗塁",
+    short: "盗塁の上手さ（ランク）",
+    effect: "盗塁成功率に関わる。盗塁戦術のLv6は盗塁B以上が条件。",
+    tip: "機動型・1〜2番向き。走力とセットで見る。",
+    related: "盗塁戦術",
+    grow: "合宿の走塁系／機動力インタビューなど"
+  },
+  {
+    name: "送球",
+    short: "送球の正確さ（ランク）",
+    effect: "送球の精度。悪送球の抑制や守備の安定に関わる。",
+    tip: "守備力・肩力と併せて。技術指導や遠投イベントで上がることがある。",
+    related: "守備指導／遠投",
+    grow: "特能の送球+1など"
+  },
+];
+
+const ABI_RANKS = [
+  { rank: "G", range: "〜19 前後", img: "最低帯" },
+  { rank: "F", range: "20〜29 前後", img: "かなり低い" },
+  { rank: "E", range: "30〜39 前後", img: "低い（捕球の最低ライン目安）" },
+  { rank: "D", range: "40〜49 前後", img: "やや低い" },
+  { rank: "C", range: "50〜59 前後", img: "平均〜使える" },
+  { rank: "B", range: "60〜69 前後", img: "高い（戦術Lv5帯に入りやすい）" },
+  { rank: "A", range: "70〜79 前後", img: "かなり高い" },
+  { rank: "S", range: "80〜 前後", img: "最高帯" },
+  { rank: "球速", range: "km/h表示", img: "例: 140 / 150 / 155…" },
+  { rank: "弾道", range: "1〜4", img: "段階表示" },
+  { rank: "変化球", range: "方向ごと 0〜7", img: "総変化量＝合計" },
+];
+
+/* 特殊能力: color=gold|blue|red, role=pitch|bat|catch */
+const TOKUSEI = [
+  /* ===== 金特・投手 ===== */
+  { color:"gold", role:"pitch", name:"暴れ球", effect:"ストレートのノビがより良くなるが、ブレやすくなる", note:"下位：荒れ球" },
+  { color:"gold", role:"pitch", name:"威圧感（投手）", effect:"2番手以降で登板時、相手打者のミート-20、パワー-20", note:"下位：存在感（投手）" },
+  { color:"gold", role:"pitch", name:"怪童", effect:"ストレートが球速よりも大幅に速く見える", note:"下位：ノビA" },
+  { color:"gold", role:"pitch", name:"怪物球威", effect:"球質が非常に重く、打たれたときの打球が飛びにくくなる", note:"下位：重い球" },
+  { color:"gold", role:"pitch", name:"ガソリンタンク", effect:"登板後のスタミナ回復が非常に早い", note:"下位：回復A" },
+  { color:"gold", role:"pitch", name:"完全燃焼", effect:"得点圏かつスタミナ残量約1/3以上で、より重くノビが良くなりスタミナ消費増", note:"下位：全開" },
+  { color:"gold", role:"pitch", name:"ギアチェンジ", effect:"先発5回以降、リード3点以内or同点で走者あり時、球速+1・コン+10・変化が近くで曲がる", note:"" },
+  { color:"gold", role:"pitch", name:"驚異の切れ味", effect:"変化球の曲がり始めが極端に遅く、より打者の近くで変化する", note:"下位：キレ〇" },
+  { color:"gold", role:"pitch", name:"強心臓", effect:"得点圏で球速+2km/h、変化量+3", note:"下位：対ピンチA" },
+  { color:"gold", role:"pitch", name:"草魂", effect:"動揺状態にほとんどならない", note:"" },
+  { color:"gold", role:"pitch", name:"クロスキャノン", effect:"対角線コースで球速より速く見える", note:"下位：クロスファイヤー" },
+  { color:"gold", role:"pitch", name:"ケンカ投法", effect:"内角投球時、コントロールと球威が大きく上がる", note:"" },
+  { color:"gold", role:"pitch", name:"終盤力", effect:"先発で勝っているか3点差以内負けのとき、球速+4・コン+10・変化+2", note:"下位：尻上がり" },
+  { color:"gold", role:"pitch", name:"主砲キラー", effect:"ミートB以上orパワーA以上相手で球速+3・変化+1、近くで変化", note:"下位：対強打者〇" },
+  { color:"gold", role:"pitch", name:"勝利の星", effect:"登板中、味方打者のミート+5、パワー+5", note:"下位：勝ち運" },
+  { color:"gold", role:"pitch", name:"精密機械", effect:"ストライクゾーン低めへのコントロールが非常に良い", note:"下位：低め〇" },
+  { color:"gold", role:"pitch", name:"走者釘付", effect:"投球モーションがより速くなる", note:"下位：クイックA" },
+  { color:"gold", role:"pitch", name:"超投打躍動", effect:"投手出場で2失点以下→ミパ大幅↑／1安打以上→コン・変化大幅↑", note:"下位：投打躍動" },
+  { color:"gold", role:"pitch", name:"ディレイドアーム", effect:"球持ちがより長く、腕の振りが見えづらい", note:"下位：球持ち〇" },
+  { color:"gold", role:"pitch", name:"鉄腕", effect:"調子による影響がほとんどない", note:"下位：調子安定（投手）" },
+  { color:"gold", role:"pitch", name:"闘魂", effect:"スタミナ切れでなくリード2点以内or負け自責2以下で重くなり動揺しにくく威圧無効", note:"下位：闘志" },
+  { color:"gold", role:"pitch", name:"ドクターK", effect:"2ストライクで球速+4km/h、変化量+2", note:"下位：奪三振" },
+  { color:"gold", role:"pitch", name:"ド根性", effect:"先発でスタミナ切れ後も能力減少が早めに止まる", note:"下位：根性〇" },
+  { color:"gold", role:"pitch", name:"トップギア", effect:"先発1〜2回は球速+4・コン+13・変化+2", note:"下位：立ち上がり〇" },
+  { color:"gold", role:"pitch", name:"内角無双", effect:"内角投球時、コントロールと球威が大きく上がる", note:"下位：内角攻め" },
+  { color:"gold", role:"pitch", name:"ハイスピンジャイロ", effect:"ストレートがジャイロ回転し、球速より非常に速く見える", note:"下位：ジャイロボール" },
+  { color:"gold", role:"pitch", name:"左キラー", effect:"左打者相手で球速+3・コン+7、スタミナ消費増", note:"下位：対左打者A" },
+  { color:"gold", role:"pitch", name:"不屈の魂", effect:"動揺状態にほとんどならない", note:"下位：打たれ強さA" },
+  { color:"gold", role:"pitch", name:"変幻自在", effect:"速球↔遅い変化の組み合わせで、直球はより速く見え変化は曲がり始めがかなり遅い", note:"下位：緩急〇" },
+  { color:"gold", role:"pitch", name:"本塁打厳禁", effect:"失投時にど真ん中へ行く確率がかなり下がる", note:"下位：逃げ球" },
+  /* ===== 金特・捕手 ===== */
+  { color:"gold", role:"catch", name:"球界の頭脳", effect:"味方投手のコン+15、消費スタミナ-11。不調/絶不調時は球速+2", note:"下位：キャッチャーA" },
+  { color:"gold", role:"catch", name:"ささやき戦術", effect:"捕手で得点圏に走者がいると、相手打者のミート-5、パワー-5", note:"" },
+  { color:"gold", role:"catch", name:"鉄の壁", effect:"本塁クロスプレイで走者のホーム突入・重戦車の発動確率をかなり下げる", note:"下位：ホーム死守" },
+  { color:"gold", role:"catch", name:"バズーカ送球", effect:"盗塁阻止時の送球がものすごく鋭くなる", note:"" },
+  /* ===== 金特・野手 ===== */
+  { color:"gold", role:"bat", name:"アーチスト", effect:"強振でホームラン性の打球がかなり出やすくなる", note:"下位：パワーヒッター／ラインドライブと排他" },
+  { color:"gold", role:"bat", name:"安打製造機", effect:"ミート打ちでヒット性の打球がかなり出やすくなる", note:"下位：アベレージヒッター" },
+  { color:"gold", role:"bat", name:"威圧感（野手）", effect:"相手投手の球速-2・コン-10・スタミナ消費+15（前打者時も弱い効果）", note:"下位：存在感（野手）" },
+  { color:"gold", role:"bat", name:"一球入魂", effect:"1ストライク取られるまでミート+15、パワー+15", note:"下位：初球〇" },
+  { color:"gold", role:"bat", name:"牛若丸", effect:"守備時に送球・背走が速く、動き出しも早い", note:"" },
+  { color:"gold", role:"bat", name:"エースキラー", effect:"エース級投手相手でミート+15、パワー+15", note:"下位：対エース〇" },
+  { color:"gold", role:"bat", name:"大番狂わせ", effect:"スタメン5回以降同点、または終盤負け/同点で走者あり時パワーがS相当", note:"下位：意外性" },
+  { color:"gold", role:"bat", name:"外角必打", effect:"アウトコースを打つのがすごく得意", note:"下位：アウトコースヒッター／内角系と排他" },
+  { color:"gold", role:"bat", name:"火事場の馬鹿力", effect:"試合終盤で負けているときミート+20、パワー+20", note:"下位：逆境〇" },
+  { color:"gold", role:"bat", name:"気迫ヘッド", effect:"きわどいときにヘッドスライディング", note:"下位：ヘッドスライディング" },
+  { color:"gold", role:"bat", name:"逆襲", effect:"前打席で抑えられた投手相手でミート+10、パワー+5", note:"下位：リベンジ" },
+  { color:"gold", role:"bat", name:"恐怖の満塁男", effect:"満塁のときミート+20、パワー+20", note:"下位：満塁男" },
+  { color:"gold", role:"bat", name:"切り込み隊長", effect:"走者がいないときミート+15、パワー+10", note:"下位：チャンスメーカー" },
+  { color:"gold", role:"bat", name:"芸術的流し打ち", effect:"ミートで流し打ちしたときヒットになりやすい", note:"下位：流し打ち" },
+  { color:"gold", role:"bat", name:"広角砲", effect:"流し方向にものすごい強い打球が打てる", note:"下位：広角打法／プル系と排他" },
+  { color:"gold", role:"bat", name:"高球必打", effect:"高めを打つのがすごく得意", note:"下位：ハイボールヒッター／低め系と排他" },
+  { color:"gold", role:"bat", name:"高速ベースラン", effect:"走塁時の走力が大きく上がり、三塁到達でヘッドしない", note:"下位：走塁A" },
+  { color:"gold", role:"bat", name:"高速レーザー", effect:"外野守備で軌道が低く非常に速い送球", note:"下位：レーザービーム" },
+  { color:"gold", role:"bat", name:"小阪ゾーン", effect:"守備時に送球・背走が速く、動き出しも早い", note:"" },
+  { color:"gold", role:"bat", name:"渾身の決勝打", effect:"同点/負けの6回以降、生還で勝ち越し場面でミート+12", note:"下位：決勝打" },
+  { color:"gold", role:"bat", name:"左腕キラー", effect:"左投手相手でミート+20、パワー+15", note:"下位：対左投手A" },
+  { color:"gold", role:"bat", name:"重戦車", effect:"本塁への激しいスライディングで捕手の捕球ミスを狙う", note:"下位：ホーム突入" },
+  { color:"gold", role:"bat", name:"勝負師", effect:"得点圏でミート+20、パワー+15", note:"下位：チャンスA" },
+  { color:"gold", role:"bat", name:"ストライク送球", effect:"送球がすごくそれにくくなる", note:"下位：送球A" },
+  { color:"gold", role:"bat", name:"精神的支柱", effect:"味方投手コン+10、味方打者ミート+10・パワー+5", note:"下位：ムード〇" },
+  { color:"gold", role:"bat", name:"世界の王", effect:"強振でホームラン性の打球がかなり出やすくなる", note:"ラインドライブと排他" },
+  { color:"gold", role:"bat", name:"世界の代打王", effect:"代打でミート+25、パワー+20", note:"" },
+  { color:"gold", role:"bat", name:"世界の盗塁王", effect:"盗塁時の走力が大きく上がる。一塁or一・三塁で相手投手コン-10・スタミナ消費増", note:"" },
+  { color:"gold", role:"bat", name:"代打の神様", effect:"代打でミート+25、パワー+20", note:"下位：代打〇" },
+  { color:"gold", role:"bat", name:"打撃の神様", effect:"ミート打ちでヒット性の打球がかなり出やすくなる", note:"" },
+  { color:"gold", role:"bat", name:"低球必打", effect:"低めを打つのがすごく得意", note:"下位：ローボールヒッター／高め系と排他" },
+  { color:"gold", role:"bat", name:"鉄人", effect:"ものすごくケガをしにくくなる", note:"下位：ケガしにくさA" },
+  { color:"gold", role:"bat", name:"電光石火", effect:"盗塁時の走力が大きく上がる。一塁or一・三塁で相手投手コン-10・スタミナ消費増", note:"下位：盗塁A" },
+  { color:"gold", role:"bat", name:"伝説のサヨナラ男", effect:"サヨナラ場面でミート+20、パワー+20", note:"下位：サヨナラ男" },
+  { color:"gold", role:"bat", name:"トリックスター", effect:"出塁時、相手投手のスタミナ消費↑・内野守備↓（複数で効果増）", note:"下位：かく乱" },
+  { color:"gold", role:"bat", name:"内角必打", effect:"インコースを打つのがすごく得意", note:"下位：インコースヒッター／外角系と排他" },
+  { color:"gold", role:"bat", name:"ヒートアップ", effect:"ストライク数ぶんミート+8、パワー+8", note:"下位：窮地〇" },
+  { color:"gold", role:"bat", name:"引っ張り屋", effect:"強振の引っ張りですごく強い打球が飛ぶ", note:"下位：プルヒッター／広角系と排他" },
+  { color:"gold", role:"bat", name:"魔術師", effect:"守備時に送球・背走が速く、動き出しも早い", note:"下位：守備職人" },
+  { color:"gold", role:"bat", name:"メッタ打ち", effect:"2安打以上で3打席目以降ミート+20、パワー+5", note:"下位：固め打ち" },
+  { color:"gold", role:"bat", name:"ロケットスタート", effect:"打ってからのスタートダッシュがものすごく速い", note:"下位：内野安打〇" },
+
+  /* ===== 青特・投手 ===== */
+  { color:"blue", role:"pitch", name:"安全圏〇", effect:"プレッシャーのかからない場面でコントロールが上がる", note:"" },
+  { color:"blue", role:"pitch", name:"重い球", effect:"打たれても打球が飛びにくくなる", note:"上位：怪物球威" },
+  { color:"blue", role:"pitch", name:"回またぎ〇", effect:"リリーフでイニングをまたいでも疲れにくい", note:"" },
+  { color:"blue", role:"pitch", name:"勝ち運", effect:"登板中、味方打者のパワー+5", note:"上位：勝利の星／赤「負け運」と対" },
+  { color:"blue", role:"pitch", name:"緩急〇", effect:"直球と遅い変化の組み合わせで能力↑", note:"上位：変幻自在／緩急重視のLv6条件" },
+  { color:"blue", role:"pitch", name:"球速安定", effect:"平均球速+2km/h", note:"" },
+  { color:"blue", role:"pitch", name:"キレ〇", effect:"変化球のキレが良くなる", note:"上位：驚異の切れ味／打たせてとれLv6" },
+  { color:"blue", role:"pitch", name:"緊急登板〇", effect:"イニング途中登板時、コントロール+10", note:"" },
+  { color:"blue", role:"pitch", name:"クロスファイヤー", effect:"対角線コースのストレートが球速より速く見える", note:"上位：クロスキャノン" },
+  { color:"blue", role:"pitch", name:"牽制〇", effect:"牽制モーションが少し早く、悪送球しにくい", note:"" },
+  { color:"blue", role:"pitch", name:"国際大会〇（投手）", effect:"国際大会出場時にコントロール+10", note:"" },
+  { color:"blue", role:"pitch", name:"根性〇", effect:"先発でスタミナ切れ後も能力減少がある程度で止まる", note:"上位：ド根性" },
+  { color:"blue", role:"pitch", name:"ジャイロボール", effect:"ストレートがジャイロ回転し、球速より速く見える", note:"上位：ハイスピンジャイロ" },
+  { color:"blue", role:"pitch", name:"尻上がり", effect:"先発7〜8回：球速+2・変化+1・コン+5／9回以降さらに上昇", note:"上位：終盤力" },
+  { color:"blue", role:"pitch", name:"ストライク先行", effect:"投げた球がストライクゾーンに行きやすい", note:"" },
+  { color:"blue", role:"pitch", name:"存在感（投手）", effect:"リリーフ登板時、相手打者のミート・パワーに影響", note:"上位：威圧感（投手）" },
+  { color:"blue", role:"pitch", name:"対強打者〇", effect:"ミートBまたはパワーA相手で球速+2、変化量+1", note:"上位：主砲キラー" },
+  { color:"blue", role:"pitch", name:"大魔神", effect:"2番手以降登板で相手ミート-20、パワー-20", note:"" },
+  { color:"blue", role:"pitch", name:"対ランナー〇", effect:"走者一塁or一・三塁でコン+5、スタミナ消費減", note:"赤「対ランナー✕」と対" },
+  { color:"blue", role:"pitch", name:"打球反応〇", effect:"ピッチャー返しをさばくのがうまくなる", note:"" },
+  { color:"blue", role:"pitch", name:"立ち上がり〇", effect:"先発1回：球速+4・コン+13・変化+2／2回も上昇", note:"上位：トップギア／赤スロスタと対" },
+  { color:"blue", role:"pitch", name:"奪三振", effect:"2ストライクで球速+2、変化量+1", note:"上位：ドクターK" },
+  { color:"blue", role:"pitch", name:"球持ち〇", effect:"球持ちが良くなり投球地点表示が遅れる", note:"上位：ディレイドアーム／緩急重視Lv6条件にも" },
+  { color:"blue", role:"pitch", name:"闘志", effect:"スタミナ切れでなく自責0以下で同点/勝ち時、重く動揺しにくく威圧無効", note:"上位：闘魂" },
+  { color:"blue", role:"pitch", name:"投打躍動", effect:"投手出場で2失点以下→ミパ↑／1安打以上→コン・変化↑", note:"上位：超投打躍動" },
+  { color:"blue", role:"pitch", name:"内角攻め", effect:"インコース投球時にコントロールが良くなる", note:"上位：内角無双／内角中心のLv6条件" },
+  { color:"blue", role:"pitch", name:"ナチュラルシュート", effect:"常にストレートが微妙にシュート変化する", note:"" },
+  { color:"blue", role:"pitch", name:"逃げ球", effect:"すっぽ抜けがど真ん中にいきにくくなる", note:"上位：本塁打厳禁／赤「一発」と対" },
+  { color:"blue", role:"pitch", name:"低め〇", effect:"低めへのコントロールが良くなる", note:"上位：精密機械／低め中心のLv6条件" },
+  { color:"blue", role:"pitch", name:"火消し", effect:"失点イニングに走者ありで登板すると球速・変化↑", note:"" },
+  { color:"blue", role:"pitch", name:"炎のストッパー", effect:"闘志系に近い終盤抑止効果", note:"" },
+  { color:"blue", role:"pitch", name:"幕張の防波堤", effect:"終盤リードで走者生還が同点/逆転場面、球速+2・コン+5", note:"" },
+  { color:"blue", role:"pitch", name:"負けないエース", effect:"登板中、味方打者のパワー+5", note:"" },
+  { color:"blue", role:"pitch", name:"真っスラ", effect:"ストレートが自然に利き手と反対方向へ曲がる", note:"" },
+  { color:"blue", role:"pitch", name:"燃える男", effect:"闘志系に近い効果", note:"" },
+  { color:"blue", role:"pitch", name:"要所〇", effect:"終盤リードで走者生還が同点/逆転場面、球速+2・コン+5", note:"" },
+  { color:"blue", role:"pitch", name:"リリース〇", effect:"直球と変化球の投球モーションが同じになる", note:"緩急重視のLv6条件" },
+  { color:"blue", role:"pitch", name:"ロケットボーイズ", effect:"平均球速+2km/h", note:"" },
+
+  /* ===== 青特・野手 ===== */
+  { color:"blue", role:"bat", name:"アウトコースヒッター", effect:"アウトコースを打つのが得意", note:"上位：外角必打／インコース系と排他／流し打ちLv6条件" },
+  { color:"blue", role:"bat", name:"アニキ", effect:"味方野手のミート+5、パワー+5", note:"ムード系" },
+  { color:"blue", role:"bat", name:"アベレージヒッター", effect:"ミート打ちでヒット性の打球が出やすくなる", note:"上位：安打製造機／センター返しLv6条件" },
+  { color:"blue", role:"bat", name:"アライバ", effect:"守備時に送球速度と背走速度が上がる", note:"" },
+  { color:"blue", role:"bat", name:"意外性", effect:"スタメン5回以降同点、または終盤負け/同点で走者あり時パワーがA相当", note:"上位：大番狂わせ" },
+  { color:"blue", role:"bat", name:"いぶし銀", effect:"終盤1点差負け/同点で得点圏、ミート打ちがヒット性になりやすい", note:"" },
+  { color:"blue", role:"bat", name:"インコースヒッター", effect:"インコースを打つのが得意", note:"上位：内角必打／アウトコース系と排他／引っ張りLv6条件" },
+  { color:"blue", role:"bat", name:"かく乱", effect:"出塁時、相手投手のスタミナ消費↑・内野守備↓", note:"上位：トリックスター" },
+  { color:"blue", role:"bat", name:"固め打ち", effect:"2安打以上で3打席目以降ミート+10、パワー+5", note:"上位：メッタ打ち" },
+  { color:"blue", role:"bat", name:"カット打ち", effect:"2ストライクのミート打ちで、少し振り遅れても当たりやすい", note:"" },
+  { color:"blue", role:"bat", name:"逆境〇", effect:"試合終盤で負けているときミート+15、パワー+15", note:"上位：火事場の馬鹿力" },
+  { color:"blue", role:"bat", name:"窮地〇", effect:"ストライク数ぶんミート+4、パワー+4", note:"上位：ヒートアップ" },
+  { color:"blue", role:"bat", name:"決勝打", effect:"同点/負けの6回以降、生還で勝ち越し場面でミート+5", note:"上位：渾身の決勝打" },
+  { color:"blue", role:"bat", name:"広角打法", effect:"流し方向に強い打球が打てる", note:"上位：広角砲／プル系と排他／流し打ちLv6条件" },
+  { color:"blue", role:"bat", name:"高速チャージ", effect:"バント時に早くボールに追いつく", note:"" },
+  { color:"blue", role:"bat", name:"ささやき破り", effect:"相手捕手の「ささやき戦術」を無効化", note:"" },
+  { color:"blue", role:"bat", name:"サヨナラ男", effect:"本塁打サヨナラ場面でパワ+15、得点圏サヨナラ場面でミート+15", note:"上位：伝説のサヨナラ男" },
+  { color:"blue", role:"bat", name:"守備職人", effect:"守備時に送球・背走速度が上がる", note:"上位：魔術師" },
+  { color:"blue", role:"bat", name:"初球〇", effect:"1ストライク取られるまでミート+10、パワー+5", note:"上位：一球入魂" },
+  { color:"blue", role:"bat", name:"絶好調男", effect:"味方野手のミート+5、パワー+5", note:"ムード系" },
+  { color:"blue", role:"bat", name:"存在感（野手）", effect:"前打者・自身の打席で相手投手のコン・消費スタミナに影響", note:"上位：威圧感（野手）" },
+  { color:"blue", role:"bat", name:"対エース〇", effect:"エース級投手相手でミート+10、パワー+10", note:"上位：エースキラー" },
+  { color:"blue", role:"bat", name:"対ストレート〇", effect:"ストレートを打つのが上手くなる", note:"" },
+  { color:"blue", role:"bat", name:"代打〇", effect:"代打でミート+15、パワー+15", note:"上位：代打の神様" },
+  { color:"blue", role:"bat", name:"対変化球〇", effect:"変化球を打つのがうまくなる", note:"" },
+  { color:"blue", role:"bat", name:"ダメ押し", effect:"4点以上リードの終盤にパワー+10", note:"" },
+  { color:"blue", role:"bat", name:"小さな大打者", effect:"ミート打ちでヒット性の打球が出やすくなる", note:"センター返しLv6条件" },
+  { color:"blue", role:"bat", name:"チャンスメーカー", effect:"走者がいないときミート+10、パワー+5", note:"上位：切り込み隊長" },
+  { color:"blue", role:"bat", name:"帳尻合わせ", effect:"無安打かつ大量リード時、3打席目以降ミート↑", note:"" },
+  { color:"blue", role:"bat", name:"内野安打〇", effect:"打ってからのスタートダッシュが速くなる", note:"上位：ロケットスタート／転がせ・セーフティのLv6条件" },
+  { color:"blue", role:"bat", name:"流し打ち", effect:"ミート打ちの流し打ちがヒットになりやすい", note:"上位：芸術的流し打ち／流し打ち戦術のLv6条件" },
+  { color:"blue", role:"bat", name:"粘り打ち", effect:"2ストライクのミート打ちでミート+10", note:"ヒットエンドランのLv6条件／赤「三振」上書きにも" },
+  { color:"blue", role:"bat", name:"ハイボールヒッター", effect:"高めを打つのが得意", note:"上位：高球必打／ロー系と排他／犠牲フライLv6条件" },
+  { color:"blue", role:"bat", name:"バックスクリーン男", effect:"強振でホームラン性の打球が出やすくなる", note:"" },
+  { color:"blue", role:"bat", name:"パワーヒッター", effect:"強振でホームラン性の打球が出やすくなる", note:"上位：アーチスト" },
+  { color:"blue", role:"bat", name:"バント〇", effect:"バントがゴロになりやすい", note:"上位：バント職人／バント系戦術のLv6条件" },
+  { color:"blue", role:"bat", name:"バント職人", effect:"バントが非常にゴロになりやすい", note:"下位：バント〇／バント系戦術のLv6条件" },
+  { color:"blue", role:"bat", name:"プルヒッター", effect:"強振の引っ張りで強い打球が飛ぶ", note:"上位：引っ張り屋／広角系と排他／引っ張りLv6条件" },
+  { color:"blue", role:"bat", name:"プレッシャーラン", effect:"併殺タイミングの二塁スライディングで一塁送球が悪送球になることがある", note:"" },
+  { color:"blue", role:"bat", name:"不惑の大砲", effect:"強振でホームラン性の打球が出やすくなる", note:"" },
+  { color:"blue", role:"bat", name:"ヘッドスライディング", effect:"きわどいときヘッドスライディング", note:"上位：気迫ヘッド" },
+  { color:"blue", role:"catch", name:"ホーム死守", effect:"捕手のとき、ホーム突入・重戦車の発生確率を下げる", note:"上位：鉄の壁" },
+  { color:"blue", role:"bat", name:"ホーム突入", effect:"本塁クロスプレイで相手捕手がボールをこぼすことがある", note:"上位：重戦車" },
+  { color:"blue", role:"bat", name:"マルチ弾", effect:"その試合で本塁打済みならパワー+10（2本目以降無効）", note:"" },
+  { color:"blue", role:"bat", name:"満塁男", effect:"満塁のときミート+15、パワー+15", note:"上位：恐怖の満塁男" },
+  { color:"blue", role:"bat", name:"ミスター", effect:"相手投手の球速-2・コン-10・スタミナ消費+15（前打者時も効果）", note:"" },
+  { color:"blue", role:"bat", name:"ムード〇", effect:"味方野手のミート+5、パワー+5", note:"上位：精神的支柱／赤「ムード×」と対" },
+  { color:"blue", role:"bat", name:"ラインドライブ", effect:"強振でライナー性の打球が出やすくなる（ゴロ除く）", note:"パワーヒッター／アーチストと排他" },
+  { color:"blue", role:"bat", name:"リベンジ", effect:"前打席で抑えられた投手相手でミート+10", note:"上位：逆襲" },
+  { color:"blue", role:"bat", name:"レーザービーム", effect:"外野守備で軌道が低く速い送球をする", note:"上位：高速レーザー" },
+  { color:"blue", role:"bat", name:"ローボールヒッター", effect:"低めを打つのが得意", note:"上位：低球必打／ハイ系と排他／犠牲フライLv6条件" },
+  { color:"blue", role:"bat", name:"若大将", effect:"味方野手のミート+5、パワー+5", note:"ムード系" },
+  { color:"blue", role:"bat", name:"Mr赤ヘル／Mr各球団など", effect:"味方野手のミート+5、パワー+5", note:"ムード系の球団固有名バリエーション" },
+
+  /* ===== 赤特・投手 ===== */
+  { color:"red", role:"pitch", name:"一発", effect:"失投時にど真ん中へ行く確率が上がる", note:"青「逃げ球」で上書き可／技術指導でも消去可" },
+  { color:"red", role:"pitch", name:"ガラスのハート", effect:"打たれるとものすごく動揺しやすい", note:"" },
+  { color:"red", role:"pitch", name:"軽い球", effect:"打たれると打球が飛びやすくなる", note:"青「重い球」で上書き可" },
+  { color:"red", role:"pitch", name:"国際大会✕（投手）", effect:"国際大会出場時にコントロールが極めて大きく下がる", note:"" },
+  { color:"red", role:"pitch", name:"四球", effect:"3ボールになるとコントロール-20", note:"技術指導で消去可" },
+  { color:"red", role:"pitch", name:"スロースターター", effect:"先発1回：球速-4・コン-13・変化-2／2回も低下", note:"青「立ち上がり〇」で上書き可" },
+  { color:"red", role:"pitch", name:"寸前", effect:"最終回または先発5回リード時、球速-2・コン-10", note:"技術指導で消去可" },
+  { color:"red", role:"pitch", name:"対ランナー✕", effect:"走者一塁or一・三塁でコン-5、スタミナ消費増", note:"青「対ランナー〇」と対" },
+  { color:"red", role:"pitch", name:"短気", effect:"動揺状態のときコントロール-10", note:"技術指導で消去可" },
+  { color:"red", role:"pitch", name:"抜け球", effect:"ストレートがときどきシュート方向高めに抜ける", note:"技術指導で消去可" },
+  { color:"red", role:"pitch", name:"ノミの心臓", effect:"得点圏で変化量-3", note:"" },
+  { color:"red", role:"pitch", name:"悲劇のエース", effect:"登板中、味方打者のパワー-5", note:"" },
+  { color:"red", role:"pitch", name:"ボール先行", effect:"投げたボールがボールゾーンに行きやすい", note:"" },
+  { color:"red", role:"pitch", name:"負け運", effect:"登板中、味方打者のパワー-5", note:"青「勝ち運」で上書き可" },
+  { color:"red", role:"pitch", name:"乱調", effect:"先発3回以降のイニング開始時、確率でコン-20", note:"技術指導で消去可" },
+
+  /* ===== 赤特・野手 ===== */
+  { color:"red", role:"bat", name:"エラー", effect:"得点圏の守備でエラーしやすくなる", note:"技術指導（守備）で消去可" },
+  { color:"red", role:"bat", name:"国際大会✕（野手）", effect:"国際大会出場時にミートとパワーが極めて大きく下がる", note:"" },
+  { color:"red", role:"bat", name:"三振", effect:"2ストライクでミート-20（フルカウント除く）", note:"青「粘り打ち」等で上書き可／打撃指導でも消去可" },
+  { color:"red", role:"bat", name:"扇風機", effect:"2ストライクでミート-30（フルカウント除く）", note:"三振の強化版" },
+  { color:"red", role:"bat", name:"併殺", effect:"ノーアウトor1アウトで一塁走者あり時、ゴロを打ちやすくなる", note:"" },
+  { color:"red", role:"bat", name:"ムード×", effect:"味方野手のミート-5、パワー-5", note:"青「ムード〇」と対" },
+];
+
+const ROLE_LABEL = { pitch: "投手", bat: "野手", catch: "捕手" };
+
+function abiCardHtml(a, type) {
+  const q = (a.name + " " + a.short + " " + a.effect + " " + a.tip + " " + a.related + " " + a.grow).toLowerCase();
+  return (
+    '<article class="info-card" data-abi="' + type + '" data-q="' + esc(q) + '">' +
+    "<h3>" + esc(a.name) + "</h3>" +
+    '<div class="meta">' + esc(a.short) + "</div>" +
+    "<p>" + esc(a.effect) + "</p>" +
+    '<p><span class="tag tip">栄冠での目安</span> ' + esc(a.tip) + "</p>" +
+    '<p class="meta">関連: ' + esc(a.related) + "</p>" +
+    '<p class="meta">伸ばし方: ' + esc(a.grow) + "</p>" +
+    "</article>"
+  );
+}
+
+function tokuseiRows(color) {
+  return TOKUSEI.filter(function (t) { return t.color === color; }).map(function (t) {
+    const q = (t.name + " " + t.effect + " " + t.note + " " + ROLE_LABEL[t.role]).toLowerCase();
+    return (
+      '<tr data-toku="' + color + '" data-role="' + t.role + '" data-q="' + esc(q) + '">' +
+      "<td><strong>" + esc(t.name) + "</strong></td>" +
+      '<td><span class="role-pill">' + ROLE_LABEL[t.role] + "</span></td>" +
+      "<td>" + esc(t.effect) + "</td>" +
+      "<td>" + esc(t.note || "—") + "</td></tr>"
+    );
+  }).join("");
+}
+
+function renderAbilities() {
+  document.getElementById("abiBatCards").innerHTML = ABI_BAT.map(function (a) { return abiCardHtml(a, "bat"); }).join("");
+  document.getElementById("abiPitchCards").innerHTML = ABI_PITCH.map(function (a) { return abiCardHtml(a, "pitch"); }).join("");
+  document.getElementById("abiSubCards").innerHTML = ABI_SUB.map(function (a) { return abiCardHtml(a, "sub"); }).join("");
+  document.querySelector("#abiGoldTable tbody").innerHTML = tokuseiRows("gold");
+  document.querySelector("#abiBlueTable tbody").innerHTML = tokuseiRows("blue");
+  document.querySelector("#abiRedTable tbody").innerHTML = tokuseiRows("red");
+  document.querySelector("#abiRankTable tbody").innerHTML = ABI_RANKS.map(function (r) {
+    return "<tr><td><strong>" + esc(r.rank) + "</strong></td><td>" + esc(r.range) + "</td><td>" + esc(r.img) + "</td></tr>";
+  }).join("");
+  filterAbilities();
+  enhanceTablesForMobile();
+}
+
+function filterAbilities() {
+  const q = document.getElementById("abiSearch").value.trim().toLowerCase();
+  const view = document.getElementById("abiView").value;
+  const role = document.getElementById("abiRole").value;
+  const isTokuOnly = view === "gold" || view === "blue" || view === "red";
+  const isBaseOnly = view === "bat" || view === "pitch" || view === "sub";
+
+  const show = {
+    bat: view === "all" || view === "bat",
+    pitch: view === "all" || view === "pitch",
+    sub: view === "all" || view === "sub",
+    gold: view === "all" || view === "gold",
+    blue: view === "all" || view === "blue",
+    red: view === "all" || view === "red",
+    rank: view === "all" || isBaseOnly,
+    intro: view === "all" || isBaseOnly || isTokuOnly,
+  };
+
+  document.getElementById("abiBatTitle").style.display = show.bat ? "" : "none";
+  document.getElementById("abiBatCards").style.display = show.bat ? "" : "none";
+  document.getElementById("abiPitchTitle").style.display = show.pitch ? "" : "none";
+  document.getElementById("abiPitchCards").style.display = show.pitch ? "" : "none";
+  document.getElementById("abiSubTitle").style.display = show.sub ? "" : "none";
+  document.getElementById("abiSubCards").style.display = show.sub ? "" : "none";
+  document.getElementById("abiGoldTitle").style.display = show.gold ? "" : "none";
+  document.getElementById("abiGoldTable").style.display = show.gold ? "" : "none";
+  document.getElementById("abiBlueTitle").style.display = show.blue ? "" : "none";
+  document.getElementById("abiBlueTable").style.display = show.blue ? "" : "none";
+  document.getElementById("abiRedTitle").style.display = show.red ? "" : "none";
+  document.getElementById("abiRedTable").style.display = show.red ? "" : "none";
+  document.getElementById("abiRankTitle").style.display = show.rank ? "" : "none";
+  document.getElementById("abiRankTable").style.display = show.rank ? "" : "none";
+
+  document.querySelectorAll("#view-abilities [data-abi]").forEach(function (el) {
+    const typeOk = show[el.dataset.abi];
+    const qOk = !q || (el.dataset.q || "").includes(q);
+    el.classList.toggle("hidden-row", !(typeOk && qOk));
+  });
+
+  document.querySelectorAll("#view-abilities [data-toku]").forEach(function (el) {
+    const colorOk = show[el.dataset.toku];
+    const roleOk = role === "all" || el.dataset.role === role;
+    const qOk = !q || (el.dataset.q || "").includes(q);
+    el.classList.toggle("hidden-row", !(colorOk && roleOk && qOk));
+  });
+}
+
+document.getElementById("abiSearch").addEventListener("input", filterAbilities);
+document.getElementById("abiView").addEventListener("change", filterAbilities);
+document.getElementById("abiRole").addEventListener("change", filterAbilities);
+
+/* レスポンシブ: 表をラップし、スマホ用ラベルを付与 */
+function enhanceTablesForMobile() {
+  document.querySelectorAll("table.data").forEach(function (table) {
+    if (!table.closest(".table-wrap")) {
+      const wrap = document.createElement("div");
+      wrap.className = "table-wrap";
+      const hint = document.createElement("div");
+      hint.className = "swipe-hint";
+      hint.textContent = "各行がカード表示になります";
+      table.parentNode.insertBefore(wrap, table);
+      wrap.appendChild(hint);
+      wrap.appendChild(table);
+    }
+    const heads = Array.prototype.map.call(table.querySelectorAll("thead th"), function (th) {
+      return th.textContent.trim();
+    });
+    table.querySelectorAll("tbody tr").forEach(function (tr) {
+      Array.prototype.forEach.call(tr.children, function (td, i) {
+        if (heads[i]) td.setAttribute("data-label", heads[i]);
+      });
+    });
+  });
+}
+
+/* init */
+renderCalendar();
+renderPanels();
+renderIcons();
+renderChoices();
+renderTactics();
+renderAbilities();
+filterSchedule();
+enhanceTablesForMobile();
+</script>
+</body>
+</html>
