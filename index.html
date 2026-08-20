@@ -338,13 +338,14 @@
 <body>
 <div class="wrap">
   <h1>栄冠ナイン 攻略ビュー</h1>
-  <p class="sub">パワプロ2026。隠し日程・スケジュールカード・戦術試合・能力説明を同じ画面のタブで確認できます。攻略情報（AppMedia / ゲームエイト等）を再構成した非公式ビューです。</p>
+  <p class="sub">パワプロ2026。隠し日程・スケジュールカード・戦術試合・能力説明・特能取得を同じ画面のタブで確認できます。攻略情報（AppMedia / ゲームエイト等）を再構成した非公式ビューです。</p>
 
   <nav class="tabs" role="tablist" aria-label="コンテンツ切替">
     <button class="tab active" data-tab="calendar" type="button">隠し日程</button>
     <button class="tab" data-tab="schedule" type="button">スケジュールカード</button>
     <button class="tab" data-tab="tactics" type="button">戦術試合</button>
     <button class="tab" data-tab="abilities" type="button">能力説明</button>
+    <button class="tab" data-tab="howto" type="button">特能取得</button>
   </nav>
 
   <!-- ===== 隠し日程 ===== -->
@@ -616,6 +617,71 @@
     <p class="note">
       基礎・特能とも攻略情報（ゲームエイト等）を再構成した非公式まとめです。一覧にない固有名・OB限定・青赤特／A〜G特もあります。<br>
       効果数値や排他関係はパッチで変わることがあるため、最終確認はゲーム内を優先してください。
+    </p>
+  </section>
+
+  <!-- ===== 特能取得 ===== -->
+  <section class="panel-view" id="view-howto">
+    <p class="hint">特殊能力の主な取得ルート確認用です。合宿カード・イベント・試合候補・特能本を横断検索できます。確率取得が多いので「候補」として使ってください。</p>
+
+    <div class="controls">
+      <label class="search-box">キーワード検索
+        <input type="search" id="howSearch" placeholder="例: アベレージ / 重い球 / マシン打撃">
+      </label>
+      <label>手段
+        <select id="howMethod">
+          <option value="all">すべて</option>
+          <option value="camp">合宿あり</option>
+          <option value="event">イベントあり</option>
+          <option value="match">試合候補</option>
+          <option value="book">特能本向き</option>
+        </select>
+      </label>
+      <label>表示
+        <select id="howView">
+          <option value="ability">特能 → 取得手段</option>
+          <option value="camp">合宿カード → 取れる特能</option>
+          <option value="event">イベント一覧</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="cards-grid" id="howIntro">
+      <article class="info-card">
+        <h3>合宿</h3>
+        <p>7/25〜7/29・12/10〜12/14。提案はだいたい 6/20・11/10 前後。入る前に進行アイコンを揃えるのがコツ。</p>
+        <p class="meta">戦術Lv6条件の青特・キャッチャー系・ムード〇を優先しがち</p>
+      </article>
+      <article class="info-card">
+        <h3>イベント／隠し</h3>
+        <p>技術指導・甲子園インタビュー・「この練習がオススメ」など。青マス／白マス条件が多い。</p>
+        <p class="meta">隠し日程タブと併用</p>
+      </article>
+      <article class="info-card">
+        <h3>試合・特訓・本</h3>
+        <p>試合は活躍で確率取得。特訓マスは★難易度。特能本は本屋・差し入れ・部室掃除・戦績ショップ。</p>
+        <p class="meta">金特は本／上位化／限定入手が多い</p>
+      </article>
+    </div>
+
+    <h2 class="section-title" id="howAbilityTitle">特能 → 取得手段</h2>
+    <table class="data" id="howAbilityTable">
+      <thead><tr><th>特能</th><th>合宿</th><th>イベント</th><th>その他</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <h2 class="section-title" id="howCampTitle">合宿カード → 取れる特能</h2>
+    <table class="data" id="howCampTable">
+      <thead><tr><th>進行アイコン</th><th>取れる可能性のある特能</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <h2 class="section-title" id="howEventTitle">イベント取得</h2>
+    <div class="list" id="howEventList"></div>
+
+    <p class="note">
+      合宿対応はゲームエイト「合宿で取れる特殊能力」をベースに再構成。試合は「取得しうる候補」で条件の詳細は特能ごとに異なります。<br>
+      金特の多くは青特の上位化・特能本・限定入手です。パッチで変わる可能性があります。
     </p>
   </section>
 </div>
@@ -1593,6 +1659,254 @@ document.getElementById("abiSearch").addEventListener("input", filterAbilities);
 document.getElementById("abiView").addEventListener("change", filterAbilities);
 document.getElementById("abiRole").addEventListener("change", filterAbilities);
 
+/* ========== 特能取得 ========== */
+const CAMP_ICONS = [
+  { icon:"素振り", abs:["帳尻合わせ","対左投手+1","カット打ち","対変化球〇","満塁男","粘り打ち","流し打ち","サヨナラ男","固め打ち"] },
+  { icon:"ミートバッティング", abs:["対左投手+1","カット打ち","ラインドライブ","対変化球〇","満塁男","粘り打ち","流し打ち","サヨナラ男","固め打ち","いぶし銀"] },
+  { icon:"ティーバッティング", abs:["存在感","対左投手+2","カット打ち","ラインドライブ","対変化球〇","アウトコースヒッター","インコースヒッター","ローボールヒッター","ハイボールヒッター","初球〇","いぶし銀","広角打法","アベレージヒッター"] },
+  { icon:"マシン打撃", abs:["対左投手+2","カット打ち","ラインドライブ","対変化球〇","威圧感","アウトコースヒッター","インコースヒッター","ローボールヒッター","ハイボールヒッター","初球〇","広角打法","アベレージヒッター"] },
+  { icon:"腕立て腹筋", abs:["ケガしにくさ+1","ラインドライブ","満塁男","サヨナラ男"] },
+  { icon:"指立て伏せ", abs:["ケガしにくさ+1","窮地〇","ラインドライブ","満塁男","サヨナラ男","プルヒッター"] },
+  { icon:"ダンベル", abs:["ケガしにくさ+2","ラインドライブ","ホーム突入","ローボールヒッター","ハイボールヒッター","広角打法","パワーヒッター"] },
+  { icon:"ベンチプレス", abs:["ケガしにくさ+2","ラインドライブ","ホーム突入","威圧感","ローボールヒッター","ハイボールヒッター","広角打法","パワーヒッター"] },
+  { icon:"ダッシュ", abs:["走塁+1","盗塁+1","ヘッドスライディング","内野安打〇"] },
+  { icon:"インターバル走", abs:["走塁+1","盗塁+1","かく乱","ヘッドスライディング","内野安打〇"] },
+  { icon:"ベースランニング", abs:["走塁+1","盗塁+2","かく乱","内野安打〇","プレッシャーラン"] },
+  { icon:"ハードル", abs:["走塁+1","盗塁+2","かく乱","内野安打〇","プレッシャーラン"] },
+  { icon:"スローイング", abs:["送球+1"] },
+  { icon:"遠投", abs:["送球+1"] },
+  { icon:"チューブトレーニング", abs:["送球+1","レーザービーム"] },
+  { icon:"ラットマシン", abs:["送球+1","レーザービーム"] },
+  { icon:"ペッパー", abs:["クイック+1","打球反応〇","守備職人"] },
+  { icon:"守備連携", abs:["クイック+1","打球反応〇","牽制〇","ムード〇","ホーム死守","守備職人"] },
+  { icon:"ノック", abs:["ブロッキング","打球反応〇","根性〇","守備職人","高速チャージ"] },
+  { icon:"マシンガンノック", abs:["打球反応〇","根性〇","守備職人","高速チャージ"] },
+  { icon:"座禅", abs:["対ピンチ+1","チャンス+1","調子安定（投手）","ポーカーフェイス","ダメ押し","逆境〇"] },
+  { icon:"メンタルトレーニング", abs:["対ピンチ+1","チャンス+1","対ランナー〇","調子安定（投手）","闘志","尻上がり","代打〇","逆境〇"] },
+  { icon:"アロマテラピー", abs:["打たれ強さ+1","対ピンチ+1","チャンス+2","調子安定（投手）","勝ち運","ムード〇"] },
+  { icon:"いやしのひととき", abs:["打たれ強さ+1","対ピンチ+1","チャンス+2","調子安定（投手）","勝ち運","ムード〇"] },
+  { icon:"フォームチェック（球速）", abs:["キャッチャー+1","球持ち〇","緩急〇"] },
+  { icon:"投げ込み", abs:["キャッチャー+2","真っスラ","球持ち〇","緩急〇"] },
+  { icon:"球速測定", abs:["ノビ+1","ノビ+2","フライボールピッチャー","荒れ球","球速安定","奪三振","ジャイロボール","重い球"] },
+  { icon:"マッスラー", abs:["存在感","ノビ+1","ノビ+2","投打躍動","球速安定","奪三振","ジャイロボール","重い球","威圧感","レーザービーム"] },
+  { icon:"フォームチェック（制球）", abs:["対左打者+1","キャッチャー+1","クロスファイヤー"] },
+  { icon:"コース投げ込み", abs:["フレーミング〇","安全圏〇","対左打者+1","キャッチャー+2","ゴロピッチャー","クロスファイヤー"] },
+  { icon:"的当て", abs:["対左打者+1","低め〇","逃げ球","内角攻め"] },
+  { icon:"コース的当て", abs:["ストライク先行","対左打者+1","要所〇","低め〇","逃げ球","内角攻め"] },
+  { icon:"スクワット", abs:["回復+1","ケガしにくさ+1","全開","根性〇"] },
+  { icon:"走り込み", abs:["回復+1","ケガしにくさ+1","全開","根性〇"] },
+  { icon:"タイヤ引き", abs:["回復+2","ケガしにくさ+2","立ち上がり〇","回またぎ〇","尻上がり","重い球"] },
+  { icon:"ローラー", abs:["回復+2","ケガしにくさ+2","尻上がり","重い球"] },
+  { icon:"フォームチェック（変）", abs:["キャッチャー+1","リリース〇","緩急〇"] },
+  { icon:"変化球投げ込み", abs:["キャッチャー+2","真っスラ","ナチュラルシュート","リリース〇","緩急〇"] },
+  { icon:"握力強化", abs:["真っスラ","ナチュラルシュート","奪三振","キレ〇"] },
+  { icon:"変化球研究", abs:["真っスラ","奪三振","キレ〇","威圧感"] },
+  { icon:"総合練習", abs:["クイック+1","キャッチャー+1","キャッチャー+2","決勝打","対強打者〇","牽制〇","ホーム死守","対エース〇","プレッシャーラン"] },
+  { icon:"バント練習", abs:["クイック+1","打球反応〇","牽制〇","バント職人","バント〇","高速チャージ"] },
+  { icon:"ストレッチ", abs:["回復+1","回復+2","ケガしにくさ+1","ケガしにくさ+2"] },
+  { icon:"特打", abs:["カット打ち","ラインドライブ","対変化球〇","ローボールヒッター","ハイボールヒッター","粘り打ち","流し打ち","広角打法","プルヒッター","パワーヒッター","アベレージヒッター"] },
+  { icon:"特守", abs:["クイック+1","キャッチャー+1","キャッチャー+2","対強打者〇","牽制〇","ホーム死守","対エース〇"] },
+];
+
+const HOW_EVENTS = [
+  {
+    title:"技術指導（赤特削除寄り）",
+    when:"6/26〜7/2・9/8〜9/14／青マス",
+    detail:"打撃→三振消去候補／守備→エラー消去・送球↑／走塁→走塁・盗塁↑／投球→寸前・一発・四球・スロスタ・力配分・短気・抜け球・軽い球・乱調 消去候補"
+  },
+  {
+    title:"甲子園インタビュー",
+    when:"7/21〜7/30・2/1〜2/10／青マス＋出場",
+    detail:"攻撃→アベヒ・パワヒ・プル・広角・流し・固め・弾道+1等／機動→走塁盗塁・内野安打・ヘッド・かく乱・プレラン・バント職人等／守備→レーザー・守備職人・ホーム死守・送球+1等／投手→ジャイロ・重い球・ノビ・球持ち・低め〇・尻上がり・キレ〇・リリース〇等（低確率・1人1つ）"
+  },
+  {
+    title:"この練習がオススメ（投手）",
+    when:"随時／青マス",
+    detail:"走りこみ→スタミナ／速い球→球速・ノビ・重い球・ジャイロ・球持ち・球速安定／制球→コン・低め〇・リリース〇／変化→キレ〇・リリース〇／実践守備→牽制・打球反応・クイック／バント→バント〇・職人"
+  },
+  {
+    title:"この練習がオススメ（野手）",
+    when:"随時／青マス",
+    detail:"フリー打撃→流し・粘り／バント→バント〇・職人／筋力→パワー・弾道／走塁→走塁盗塁・ヘッド・かく乱／遠投→送球・レーザー／実践守備→送球・守備職人・捕球"
+  },
+  {
+    title:"特訓マス",
+    when:"敗退後特訓日・2月末・Xmas等",
+    detail:"3人から1人選んでチャレンジ。★が多いほど成功しにくい。調子ノリノリで成功率↑。Lv6条件青特を優先しがち"
+  },
+  {
+    title:"特能本",
+    when:"いつでも使用可（入手時）",
+    detail:"戦績ショップ／卒業生・本屋／校長・OB差し入れ／マネ部室掃除。金特本やランク上げ本も含む"
+  },
+];
+
+const HOW_EVENT_TAGS = {
+  "アベレージヒッター":"甲子園インタビュー（攻撃）",
+  "パワーヒッター":"甲子園インタビュー（攻撃）／この練習（筋力）",
+  "プルヒッター":"甲子園インタビュー（攻撃）",
+  "広角打法":"甲子園インタビュー（攻撃）",
+  "流し打ち":"甲子園インタビュー（攻撃）／この練習（フリー打撃）",
+  "固め打ち":"甲子園インタビュー（攻撃）",
+  "内野安打〇":"甲子園インタビュー（機動）",
+  "ヘッドスライディング":"甲子園インタビュー（機動）／この練習（走塁）",
+  "かく乱":"甲子園インタビュー（機動）／この練習（走塁）",
+  "プレッシャーラン":"甲子園インタビュー（機動）",
+  "バント職人":"甲子園インタビュー（機動）／この練習（バント）",
+  "バント〇":"この練習（バント）",
+  "レーザービーム":"甲子園インタビュー（守備）／この練習（遠投）",
+  "守備職人":"甲子園インタビュー（守備）／この練習（実践守備）",
+  "ホーム死守":"甲子園インタビュー（守備）",
+  "ジャイロボール":"甲子園インタビュー（投手）／この練習（速い球）",
+  "重い球":"甲子園インタビュー（投手）／この練習（速い球）",
+  "キレ〇":"甲子園インタビュー（投手）／この練習（変化）",
+  "低め〇":"甲子園インタビュー（投手）／この練習（制球）",
+  "尻上がり":"甲子園インタビュー（投手）",
+  "球持ち〇":"甲子園インタビュー（投手）／この練習（速い球）",
+  "リリース〇":"甲子園インタビュー（投手）／この練習（制球・変化）",
+  "粘り打ち":"この練習（フリー打撃）",
+  "三振":"技術指導（打撃）で消去候補",
+  "エラー":"技術指導（守備）で消去候補",
+  "一発":"技術指導（投球）で消去候補",
+  "軽い球":"技術指導（投球）で消去候補",
+  "スロースターター":"技術指導（投球）で消去候補",
+};
+
+const HOW_MATCH = {
+  "アベレージヒッター":"春夏甲子園で連続猛打賞など（ミートC以上など条件あり）",
+  "重い球":"例: 5人連続内野凡退（球速140〜）など",
+  "キレ〇":"例: 奪三振7以上（球速・総変化条件）など",
+  "対強打者〇":"例: 強豪以上で被安打3以下の勝利投手など",
+  "対ピンチ+1":"例: 得点圏で複数打席被安打0など",
+};
+
+const HOW_MATCH_POOL = [
+  "威圧感","打たれ強さ+1","重い球","勝ち運","キレ〇","クイック+1","根性〇","尻上がり","速球中心","対強打者〇","対左打者+1","対ピンチ+1","打球反応〇","奪三振","調子安定（投手）","ノビ+1","ノビ+2","低め〇","変化球中心",
+  "意外性","カット打ち","固め打ち","逆境〇","キャッチャー+1","キャッチャー+2","強振多用","広角打法","慎重打法","積極打法","積極盗塁","選球眼","走塁+1","送球+1","サヨナラ男","対エース〇","代打〇","対左投手+1","対左投手+2","チームプレイ〇","チャンス+1","チャンス+2","チャンスメーカー","調子安定（野手）","盗塁+1","盗塁+2","内野安打〇","流し打ち","粘り打ち","パワーヒッター","バント〇","プルヒッター","満塁男","ミート多用","ラインドライブ","レーザービーム","アベレージヒッター"
+];
+
+function buildCampIndex() {
+  const map = {};
+  CAMP_ICONS.forEach(function (c) {
+    c.abs.forEach(function (a) {
+      if (!map[a]) map[a] = [];
+      if (map[a].indexOf(c.icon) < 0) map[a].push(c.icon);
+    });
+  });
+  return map;
+}
+
+const CAMP_BY_ABILITY = buildCampIndex();
+
+function allHowtoAbilityNames() {
+  const set = {};
+  Object.keys(CAMP_BY_ABILITY).forEach(function (n) { set[n] = true; });
+  Object.keys(HOW_EVENT_TAGS).forEach(function (n) { set[n] = true; });
+  HOW_MATCH_POOL.forEach(function (n) { set[n] = true; });
+  Object.keys(HOW_MATCH).forEach(function (n) { set[n] = true; });
+  return Object.keys(set).sort(function (a, b) { return a.localeCompare(b, "ja"); });
+}
+
+function howtoRowMeta(name) {
+  const camp = CAMP_BY_ABILITY[name] || [];
+  const ev = HOW_EVENT_TAGS[name] || "";
+  const matchDetail = HOW_MATCH[name] || "";
+  const matchPool = HOW_MATCH_POOL.indexOf(name) >= 0;
+  const other = [];
+  if (matchDetail) other.push("試合: " + matchDetail);
+  else if (matchPool) other.push("試合: 取得候補（詳細条件は特能ページ参照）");
+  other.push("特能本: 本屋・差し入れ・部室掃除・戦績ショップ");
+  other.push("特訓マス: 候補に出ればチャレンジ可");
+  return {
+    name: name,
+    camp: camp.length ? camp.join("／") : "—",
+    event: ev || "—",
+    other: other.join(" ／ "),
+    flags: {
+      camp: camp.length > 0,
+      event: !!ev,
+      match: matchPool || !!matchDetail,
+      book: true
+    },
+    q: (name + " " + camp.join(" ") + " " + ev + " " + other.join(" ")).toLowerCase()
+  };
+}
+
+function renderHowto() {
+  const names = allHowtoAbilityNames();
+  document.querySelector("#howAbilityTable tbody").innerHTML = names.map(function (n) {
+    const r = howtoRowMeta(n);
+    return (
+      '<tr data-how="ability" data-camp="' + (r.flags.camp ? "1" : "0") + '" data-event="' + (r.flags.event ? "1" : "0") + '" data-match="' + (r.flags.match ? "1" : "0") + '" data-book="1" data-q="' + esc(r.q) + '">' +
+      "<td><strong>" + esc(r.name) + "</strong></td>" +
+      "<td>" + esc(r.camp) + "</td>" +
+      "<td>" + esc(r.event) + "</td>" +
+      "<td>" + esc(r.other) + "</td></tr>"
+    );
+  }).join("");
+
+  document.querySelector("#howCampTable tbody").innerHTML = CAMP_ICONS.map(function (c) {
+    const q = (c.icon + " " + c.abs.join(" ")).toLowerCase();
+    return (
+      '<tr data-how="camp" data-q="' + esc(q) + '">' +
+      "<td><strong>" + esc(c.icon) + "</strong></td>" +
+      "<td>" + esc(c.abs.join("／")) + "</td></tr>"
+    );
+  }).join("");
+
+  document.getElementById("howEventList").innerHTML = HOW_EVENTS.map(function (e) {
+    const q = (e.title + " " + e.when + " " + e.detail).toLowerCase();
+    return (
+      '<article class="card" data-how="event" data-q="' + esc(q) + '">' +
+      "<h3>" + esc(e.title) + "</h3>" +
+      '<div class="meta">' + esc(e.when) + "</div>" +
+      '<p style="margin:6px 0 0;font-size:.85rem">' + esc(e.detail) + "</p></article>"
+    );
+  }).join("");
+
+  filterHowto();
+  enhanceTablesForMobile();
+}
+
+function filterHowto() {
+  const q = document.getElementById("howSearch").value.trim().toLowerCase();
+  const method = document.getElementById("howMethod").value;
+  const view = document.getElementById("howView").value;
+
+  const showAbility = view === "ability";
+  const showCamp = view === "camp";
+  const showEvent = view === "event";
+
+  document.getElementById("howAbilityTitle").style.display = showAbility ? "" : "none";
+  document.getElementById("howAbilityTable").style.display = showAbility ? "" : "none";
+  document.getElementById("howCampTitle").style.display = showCamp ? "" : "none";
+  document.getElementById("howCampTable").style.display = showCamp ? "" : "none";
+  document.getElementById("howEventTitle").style.display = showEvent ? "" : "none";
+  document.getElementById("howEventList").style.display = showEvent ? "" : "none";
+
+  document.querySelectorAll("#view-howto [data-how]").forEach(function (el) {
+    const kind = el.dataset.how;
+    let viewOk = (kind === "ability" && showAbility) || (kind === "camp" && showCamp) || (kind === "event" && showEvent);
+    if (kind === "event" && showEvent) viewOk = true;
+    let methodOk = true;
+    if (kind === "ability" && method !== "all") {
+      methodOk = el.getAttribute("data-" + method) === "1";
+    }
+    if (kind === "camp" && method === "event") methodOk = false;
+    if (kind === "camp" && method === "match") methodOk = false;
+    if (kind === "event" && (method === "camp" || method === "match" || method === "book")) methodOk = method === "event" || method === "all";
+    if (kind === "event" && method === "all") methodOk = true;
+    if (kind === "event" && method === "event") methodOk = true;
+    if (kind === "camp" && (method === "all" || method === "camp")) methodOk = true;
+    const qOk = !q || (el.dataset.q || "").includes(q);
+    el.classList.toggle("hidden-row", !(viewOk && methodOk && qOk));
+  });
+}
+
+document.getElementById("howSearch").addEventListener("input", filterHowto);
+document.getElementById("howMethod").addEventListener("change", filterHowto);
+document.getElementById("howView").addEventListener("change", filterHowto);
+
 /* レスポンシブ: 表をラップし、スマホ用ラベルを付与 */
 function enhanceTablesForMobile() {
   document.querySelectorAll("table.data").forEach(function (table) {
@@ -1624,6 +1938,7 @@ renderIcons();
 renderChoices();
 renderTactics();
 renderAbilities();
+renderHowto();
 filterSchedule();
 enhanceTablesForMobile();
 </script>
