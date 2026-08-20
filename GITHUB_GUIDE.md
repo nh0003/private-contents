@@ -16,11 +16,14 @@
 
 1. [https://github.com](https://github.com) にログイン（アカウント例: `nh0003`）
 2. 右上 **＋** → **New repository**
-3. 設定例:
-   - **Repository name:** `eikan-nine-guide`
-   - **Public**（Pages で公開する場合）
+3. 設定:
+   - **Repository name:** `private-contents`
+   - **Private**
    - **Add a README** は **チェックしない**（空のまま）
 4. **Create repository**
+
+作成リンク（ログイン済みなら）:  
+https://github.com/new?name=private-contents
 
 > `training-manager` とは別名にしてください。
 
@@ -36,13 +39,12 @@ cd "C:\Users\Naoya Hirota\Documents\Cursor\2026-08-20_栄冠ナイン攻略ビ�
 # 社内プロキシがある場合は一度 OFF（または once）
 .\git-proxy.ps1 off
 
-git remote add origin https://github.com/nh0003/eikan-nine-guide.git
+# remote は設定済みの想定。未設定なら:
+# git remote add origin https://github.com/nh0003/private-contents.git
 git push -u origin main
 ```
 
-※ すでに `git init` と初回コミット済みなら、上記の `remote` → `push` だけでOKです。
-
-ユーザー名が違う場合は URL の `nh0003` を置き換えてください。
+※ すでに `git init`・初回コミット・`origin` 設定済みなら `git push -u origin main` だけでOKです。
 
 ### 認証
 

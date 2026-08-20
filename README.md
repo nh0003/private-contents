@@ -21,15 +21,10 @@ python -m http.server 8080
 
 手順は [GITHUB_GUIDE.md](./GITHUB_GUIDE.md) を参照。
 
-想定リポジトリ名: `eikan-nine-guide`  
-（トレーニング管理アプリ `training-manager` とは別リポジトリ）
+リポジトリ名: `private-contents`（`training-manager` とは別）  
+remote: `https://github.com/nh0003/private-contents.git`
 
-公開後の URL 例:
-
-```
-https://nh0003.github.io/eikan-nine-guide/
-```
-
+プライベートリポジトリ想定。GitHub Pages を使う場合はプラン制約に注意（無料枠では private からの Pages に制限あり）。
 ## 社内ネットでの git
 
 プロキシ切り替えは `git-proxy.ps1`（トレーニング管理アプリと同じ方式）を使えます。
