@@ -21,10 +21,10 @@ python -m http.server 8080
 
 手順は [GITHUB_GUIDE.md](./GITHUB_GUIDE.md) を参照。
 
-リポジトリ名: `private-contents`（`training-manager` とは別）  
-remote: `https://github.com/nh0003/private-contents.git`
-
-プライベートリポジトリ想定。GitHub Pages を使う場合はプラン制約に注意（無料枠では private からの Pages に制限あり）。
+- リポジトリ: https://github.com/nh0003/private-contents （Public 想定）
+- push すると GitHub Actions で Pages にデプロイされます
+- 公開 URL 例: `https://nh0003.github.io/private-contents/`
+  （URL は共有しなければ、検索されにくい運用になります。ただし知られれば誰でも開けます）
 ## 社内ネットでの git
 
 プロキシ切り替えは `git-proxy.ps1`（トレーニング管理アプリと同じ方式）を使えます。
